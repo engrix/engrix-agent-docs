@@ -1,6 +1,6 @@
 # Sistem Tool
 
-Fitur paling menentukan dari Engrix Agent: **425 tool ter-register di 22 kategori** (cek registry live: `425 tool registered | 22 kategori | 407 tool terkategori | 17 always-on`, ghost 0, missing 0, duplikat 0).
+Fitur paling menentukan dari Engrix Agent: **425 tool ter-register di 22 kategori**. Aritmatikanya tutup persis: `425 ter-register = 407 terkategori + 17 always-on + 1 meta-tool` — `open_tool_category`, si pembuka laci itu sendiri, sengaja di luar kategori. Checker yang sama juga melaporkan dua lint penamaan non-blocking (70 pasangan nama mirip — banyak yang memang disengaja, misal `email_*` vs `gmail_*` laci yang beda — dan satu nama di atas 40 char), direview, bukan disembunyikan. Diukur lewat registry parity checker, 16-10-2026, terhadap commit `b1a7a71`.
 
 ## Pertanyaan kritisnya
 
@@ -43,6 +43,6 @@ Tiga mekanisme yang bikin pemilihan tetap presisi:
 
 ## Kenapa tools-nya bisa dipercaya
 
-Registry-nya kontrak yang diverifikasi, bukan konvensyen. Pemeriksa parity live membandingkan definisi kategori dengan yang benar-benar ter-register saat import, dan melaporkan ghost (didefinisikan tapi tak ter-register), missing tool, dan duplikat. Run terakhir: **semua nol**. Tiap penambahan lewat protokol registrasi empat titik yang eksplisit — lihat [keputusan registry](../decisions/003-explicit-tool-registry.md).
+Registry-nya kontrak yang diverifikasi, bukan konvensyen. Pemeriksa parity membandingkan definisi kategori dengan yang benar-benar ter-register saat import, dan **hard-fail** pada ghost (didefinisikan tapi tak ter-register), missing tool, drift always-on, dan duplikat — dia jalan sebagai gate pre-commit tiap ada perubahan `tools/`, sengaja berupa perintah yang lo jalankan, bukan daemon latar (header checker-nya sendiri mendokumentasikan aturan itu). Temuan lint penamaan dilaporkan sebagai warning, nggak pernah dipendam diam-diam. Tiap penambahan lewat protokol registrasi empat titik yang eksplisit — lihat [keputusan registry](../decisions/003-explicit-tool-registry.md).
 
 Lanjut ke: [Memori Berlapis](memory.md) — gimana agent nggak pernah kehilangan benang merah.

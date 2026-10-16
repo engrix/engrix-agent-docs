@@ -6,7 +6,7 @@
 
 Pertanyaan itulah yang mendorong tiap keputusan di halaman ini. Skrip demo sekali jalan itu gampang; sistem yang tetap ngambil keputusan bener di jam kedelapan — dengan konteks yang udah terkompresi, belasan drawer tool kebuka, dan tiga side-quest dari awal sesi — itu masalah arsitektur.
 
-Engrix Agent adalah AI engineering agent yang berjalan lokal, untuk satu owner: satu proses FastAPI backend, satu frontend React yang dilayani oleh proses itu sendiri, dan shell Electron opsional yang memakai frontend yang sama sebagai copilot desktop always-on-top.
+Engrix Agent adalah AI engineering agent yang berjalan lokal, untuk satu owner: satu proses FastAPI backend, satu frontend React yang dilayani oleh proses itu sendiri, dan shell Electron opsional yang memakai frontend yang sama sebagai copilot desktop always-on-top. Dia jalan di Windows — target deployment-nya adalah mesin owner — dan setiap angka di halaman-halaman ini (jumlah tool, parity registry) diambil dari checker live yang dijalankan 16-10-2026 terhadap commit `b1a7a71`.
 
 ## Kenapa foldernya dipisah-pisah
 
@@ -79,5 +79,11 @@ Browser dapat workspace penuh; copilot Electron memuat build yang identik lewat 
 | Desktop | Electron (jendela copilot frameless, always-on-top) |
 | Storage | SQLite (WAL) + Qdrant (embedded lokal atau server mode) |
 | Packaging | Pack portabel: source + venv + build frontend, launcher tunggal `engrix.exe` |
+
+## Alternatif yang dipertimbangkan
+
+- **Microservices** (backend dipecah jadi service terpisah) — ditolak: agent butuh state in-process yang dibagi (registry, state drawer, memori) dan deployment satu mesin; memecahnya cuma membeli masalah distributed-systems yang nggak dibutuhkan siapa pun di sini.
+- **PostgreSQL sejak awal** — ditolak buat sekarang: satu penulis dengan SQLite embedded mode WAL sudah nutup bebannya; layer storage mengisolasi keputusan pindah engine (lihat [dual storage](../decisions/005-dual-storage.md)).
+- **Memori vector-only** — ditolak: recall semantik nggak bisa mereproduksi fakta eksak; ekstraksi mekanis dan pencarian vektor menyelesaikan mode kelupaan yang beda, jadi dua-duanya tetap ada.
 
 Lanjut ke: [Sistem Tool](tool-system.md) — bagian yang bikin agent bisa mengendalikan ratusan tools secara koheren.

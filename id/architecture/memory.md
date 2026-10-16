@@ -14,7 +14,7 @@ Memori adalah layer domain (`memory/`) berisi store-store terspesialisasi, masin
 
 | Store | Peran |
 |---|---|
-| **Fakta (Layer 1)** | Ekstraksi fakta sesi yang persisten — 100% mekanis, nol halusinasi, plus filter stopword anti-halusinasi |
+| **Fakta (Layer 1)** | Ekstraksi fakta sesi yang persisten — 100% mekanis, fakta diekstrak bukan ditulis model, plus filter stopword anti-entri khayalan |
 | **History** | Riwayat pesan dengan sanitasi blok tool dan **kompaksi built-in** — output tool yang panjang dikompres, bukan maknanya |
 | **Task position** | Blok `TASK_CONTEXT` yang di-inject di setiap giliran model: task apa yang aktif, lagi di step mana, keputusan apa yang sudah diambil — agent selalu tahu lagi ngapain |
 | **Task summary** | Ringkasan + grade per task; riwayat satu room makin *ramping*, bukan makin bengkak, seiring kerjaannya maju |

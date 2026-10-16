@@ -8,7 +8,32 @@ An unedited screen recording of one real task (research across three source type
 
 [![Engrix Agent — live task demo](assets/demo-preview.jpg)](assets/demo.mp4)
 
-▶ **[Watch the demo video](assets/demo.mp4)** — 8m34s, no audio, 1× speed. Recorded by pressing the in-app record button; that button is itself one of the agent's tools.
+▶ **[Watch the demo video](assets/demo.mp4)** — 8m34s, no audio, 1× speed. Recorded by pressing the in-app record button; that button is itself one of the agent's tools. (All numbers on these pages were captured by a live registry-parity checker run on **2026-10-16** against commit `b1a7a71`.)
+
+## What it looks like
+
+One frontend build, four surfaces — the full workspace, a 380px floating panel, and a one-button bubble in the browser; the same build inside an always-on-top Electron window:
+
+| Full workspace | Copilot panel | Bubble |
+|---|---|---|
+| ![Full workspace](assets/ui-full.jpg) | ![Copilot panel](assets/ui-panel.jpg) | ![Bubble](assets/ui-bubble.jpg) |
+
+The engine's repository at the same moment — the portfolio documents this system; the code itself stays private (a deliberate choice, explained under Safety):
+
+![Repository structure](assets/repo-structure.png)
+
+## What you are looking at
+
+- **[System overview](en/architecture/overview.md)** — why the engine is one process, and why its folders are separated by a one-way dependency contract
+- **[The tool system](en/architecture/tool-system.md)** — how one agent drives ~425 tools coherently (catalog → drawer → full schema, loaded once)
+- **[Layered memory](en/architecture/memory.md)** — how compression keeps the core of a task instead of the noise
+- **[Interfaces](en/architecture/interfaces.md)** — four UI surfaces from one build, and everything the agent can reach
+- **[Design decisions](en/decisions/001-one-process-architecture.md)** — 8 ADRs, each opened by the question that forced it
+- **[Roadmap](en/roadmap.md)** — shipped, partial, and not-yet, stated as-is
+
+## Safety and access
+
+The tool inventory is deliberately broad (browsers, terminals, desktop control, remote servers, security-research pipelines), and that breadth is exactly why access is narrow by design. The engine runs as a single-owner instance, not a public service: nothing listens beyond localhost, and the owner's account is the only one that exists. Actions that cannot be undone — repository mutations, message sends, destructive device operations — pass through an explicit approval step before they execute, and every tool call is recorded with its result in the session ledger. The code stays private not because there is something to hide but because it contains the details of a running personal system; the architecture, the decisions, and the recorded evidence of it working are what this repository publishes.
 
 ## Origin
 

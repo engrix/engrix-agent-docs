@@ -6,7 +6,7 @@
 
 That question drove every decision on this page. A one-off demo script is easy; a system that still makes correct choices at hour eight — with a compressed context, dozens of opened tool drawers, and three side quests from earlier in the session — is an architecture problem.
 
-Engrix Agent is a local-first engineering agent: one FastAPI backend process, one React frontend served by that process, and an optional Electron shell that reuses the same frontend as an always-on-top desktop copilot.
+Engrix Agent is a local-first engineering agent: one FastAPI backend process, one React frontend served by that process, and an optional Electron shell that reuses the same frontend as an always-on-top desktop copilot. It runs on Windows — the deployment target is the owner's machine — and every hard number on these pages (tool counts, registry parity) was captured by a live checker run on 2026-10-16 against repo commit `b1a7a71`.
 
 ## Why the folders are separated
 
@@ -79,5 +79,11 @@ The browser gets the full workspace; the Electron copilot loads the identical bu
 | Desktop | Electron (frameless, always-on-top copilot window) |
 | Storage | SQLite (WAL) + Qdrant (local embedded or server mode) |
 | Packaging | Portable pack: source + venv + frontend build, single `engrix.exe` launcher |
+
+## Alternatives considered
+
+- **Microservices** (backend split into services) — rejected: the agent needs shared in-process state (registry, drawer state, memory) and single-machine deployment; splitting buys distributed-systems problems no one here has.
+- **PostgreSQL first** — rejected for now: a single writer with embedded SQLite in WAL mode covers the load; the storage layer isolates the swap decision (see [dual storage](../decisions/005-dual-storage.md)).
+- **Vector-only memory** — rejected: semantic recall cannot reproduce exact facts; mechanical extraction and vector search solve different modes of forgetting, so both stay.
 
 Next: [Tool System](tool-system.md) — the part that makes an agent able to drive hundreds of tools coherently.

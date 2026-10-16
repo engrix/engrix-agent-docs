@@ -6,6 +6,8 @@
 
 The wrong answer is four apps. The right answer is one app rendered at four sizes, with only the desktop wrapper being genuinely native code.
 
+**In one line:** one frontend build, four renderings of it; all four reach the engine the same way, and the desktop shell adds window-level features (always-on-top, global hotkey, tray, capture exclusion) without touching the app itself.
+
 ## Four surfaces, one engine
 
 The same chat engine is reachable through four UI modes, all rendered from one frontend build:

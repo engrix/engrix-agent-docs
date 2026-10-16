@@ -14,7 +14,7 @@ Memory is a domain layer (`memory/`) with specialized stores, each solving one k
 
 | Store | Role |
 |---|---|
-| **Facts (Layer 1)** | Persistently extracted session facts — mechanical extraction only, zero hallucination, with a stopword filter against confabulated "facts" |
+| **Facts (Layer 1)** | Persistently extracted session facts — mechanical extraction only, no model-written facts, with a stopword filter against confabulated entries |
 | **History** | Message history with tool-block sanitization and **compaction built in** — long tool outputs are compressed, not the meaning |
 | **Task position** | A `TASK_CONTEXT` block injected at every model turn: what task is active, what step it is on, what was decided — the agent always knows what it is doing |
 | **Task summaries** | Per-task grade and summary; a room's history grows *smaller*, not bigger, as work progresses |

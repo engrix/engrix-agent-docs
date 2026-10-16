@@ -6,6 +6,8 @@
 
 Jawaban salahnya: bikin empat aplikasi. Jawaban benarnya: satu aplikasi yang dirender di empat ukuran, dan cuma wrapper desktop-nya yang beneran kode native.
 
+**Dalam satu kalimat:** satu build frontend, empat rendering-nya; keempatnya nyampe ke engine lewat cara yang sama, dan shell desktop cuma nambahin fitur level jendela (always-on-top, hotkey global, tray, anti-capture) tanpa nyentuh aplikasinya.
+
 ## Empat permukaan, satu engine
 
 Engine chat yang sama bisa diakses lewat empat mode UI, semua dirender dari satu build frontend:

@@ -1,6 +1,6 @@
 # The Tool System
 
-The defining feature of Engrix Agent: **425 registered tools across 22 categories** (live registry check: `425 tool registered | 22 kategori | 407 tool terkategori | 17 always-on`, zero ghosts, zero missing, zero duplicates).
+The defining feature of Engrix Agent: **425 registered tools across 22 categories**. The arithmetic closes exactly: `425 registered = 407 categorized + 17 always-on + 1 meta-tool` — `open_tool_category`, the drawer-opener itself, lives outside categories by design. The same checker reports two non-blocking naming lints (70 similar-name pairs — many intentional, e.g. `email_*` vs `gmail_*` are deliberately separate drawers — and one over-40-char name), reviewed rather than hidden. Measured via the registry parity checker, 2026-10-16, against repo commit `b1a7a71`.
 
 ## The critical question
 
@@ -43,6 +43,6 @@ Three mechanisms keep selection precise:
 
 ## Why the tools are trustworthy
 
-The registry is a verified contract, not a convention. A live parity checker compares the category definitions against what actually registers at import time and reports ghosts (defined but unregistered), missing tools, and duplicates. The current run: **all zeros**. Every addition goes through an explicit four-point registration protocol — see [the registry decision](../decisions/003-explicit-tool-registry.md).
+The registry is a verified contract, not a convention. A parity checker compares the category definitions against what actually registers at import time and **hard-fails** on ghosts (defined but unregistered), missing tools, always-on drift, and duplicates — it runs as a pre-commit gate on `tools/` changes, deliberately a command you run rather than a background daemon (the checker's own header documents that rule). Naming-lint findings are reported as warnings, never silently suppressed. Every addition goes through an explicit four-point registration protocol — see [the registry decision](../decisions/003-explicit-tool-registry.md).
 
 Next: [Layered Memory](memory.md) — how the agent never loses the thread.
