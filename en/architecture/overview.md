@@ -1,6 +1,6 @@
-# System Overview
+﻿# System Overview
 
-## The critical question
+## The question
 
 > *What happens when an agent like this runs for eight hours straight — does it hold together, or does every piece eventually need babysitting?*
 

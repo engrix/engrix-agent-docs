@@ -1,11 +1,11 @@
-# Roadmap — what is real, what is next
+﻿# Roadmap — what is real, what is next
 
 Nothing on this page is dressed up. Each item states what exists today and what does not.
 
 | Item | Status | Where it stands |
 |---|---|---|
 | Core agent loop, tools, memory | **Shipped** | Daily production use |
-| 4 UI surfaces incl. desktop copilot | **Shipped** | One build, Electron shell included |
+| 4 UI surfaces incl. desktop copilot | **Partial (in debugging)** | All four surfaces ship; the desktop copilot is still being debugged day-to-day. Next: two clear modes — a quick **assistant** mode (no planning scaffolding, just answers) and the full **workspace** mode |
 | Screen recording (button + tool) | **Shipped** | In-app button; used to capture this repo's demo |
 | Portable pack + backup repos | **Shipped** | `engrix.exe` launcher; GitHub backups |
 | Sub-agents helping the main agent | **Concept** | Not started — open design questions below |

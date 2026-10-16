@@ -1,8 +1,8 @@
-# The Tool System
+﻿# The Tool System
 
 The defining feature of Engrix Agent: **425 registered tools across 22 categories**. The arithmetic closes exactly: `425 registered = 407 categorized + 17 always-on + 1 meta-tool` — `open_tool_category`, the drawer-opener itself, lives outside categories by design. The same checker reports two non-blocking naming lints (70 similar-name pairs — many intentional, e.g. `email_*` vs `gmail_*` are deliberately separate drawers — and one over-40-char name), reviewed rather than hidden. Measured via the registry parity checker, 2026-10-16, against repo commit `b1a7a71`.
 
-## The critical question
+## The question
 
 > *How can an agent use hundreds of tools without getting confused — and pick the right one?*
 

@@ -2,11 +2,11 @@
 
 **Status:** Diterima
 
-> *Pertanyaan yang dijawab ADR ini:* **Gimana cara mencegah codebase diam-diam tumbuh circular import?**
+> *Pertanyaan yang dijawab ADR ini:* **Bagaimana cara mencegah codebase diam-diam tumbuh circular import?**
 
 ## Masalah
 
-Codebase yang tumbuh melorot ke cycle: kode UI meng-import storage, storage meng-import loop agent, semuanya meng-import semuanya. Tiap fitur baru jadi lebih mahal dari yang sebelumnya, dan "kemarin masih jalan" jadi rutinitas. Pemicu di sini adalah reorganisasi struktural itu sendiri — pertanyaannya bukan cuma *file pindah ke mana*, tapi *bagaimana membuat struktur itu bisa ditegakkan*.
+Codebase yang tumbuh melorot ke cycle: kode UI meng-import storage, storage meng-import loop agent, semuanya meng-import semuanya. Tiap fitur baru jadi lebih mahal dari yang sebelumnya, dan "kemarin masih jalan" jadi rutinitas. Pemicu di sini adalah reorganisasi struktural itu sendiri — pertanyaannya bukan hanya *file pindah ke mana*, tapi *bagaimana membuat struktur itu bisa ditegakkan*.
 
 ## Solusi
 
@@ -19,7 +19,7 @@ config → storage → memory → knowledge → formatting → curation
 
 Layer tinggi boleh meng-import layer rendah; tidak pernah sebaliknya. Kode domain tidak pernah menulis plumbing SQL; orkestrasi tidak pernah membaca file konfigurasi langsung. Pemisahan adalah kontrak perawatan: satu perbaikan logis mendarat di satu layer.
 
-Aturannya diverifikasi, bukan cuma cita-cita: skrip audit dependensi memetakan setiap import lintas paket dan menandai pelanggaran — tool inilah yang menemukan hanya dua back-edge nyata (router meng-import dari loop agent) saat restrukturisasi, yang lalu dilarutkan dengan memindahkan router turun satu layer.
+Aturannya diverifikasi, bukan hanya cita-cita: skrip audit dependensi memetakan setiap import lintas paket dan menandai pelanggaran — tool inilah yang menemukan hanya dua back-edge nyata (router meng-import dari loop agent) saat restrukturisasi, yang lalu dilarutkan dengan memindahkan router turun satu layer.
 
 ## Konsekuensi
 

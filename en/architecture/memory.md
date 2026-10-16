@@ -1,4 +1,4 @@
-# Layered Memory
+﻿# Layered Memory
 
 ## The origin problem
 
@@ -43,6 +43,16 @@ flowchart TD
 ```
 
 The design principle: **the deeper the chat, the more it compresses — but the core stays.** An agent in hour four of a session still has the task's skeleton in front of it every single turn.
+
+## Ranking and relevance
+
+Retrieval returns candidates; it does not decide what the model actually sees. A rerank layer reorders retrieved chunks by query relevance (a reranking service over the candidates, with configurable candidate/keep counts and empirically calibrated score thresholds that decide between a confident hit, a weak hit worth flagging, and a clean miss). Weak hits are labelled as weak instead of being presented as solid answers — the agent knows when the evidence is thin.
+
+A small online-learning layer (`ml/`) keeps models that hold learnable state (per-session preference baselines, route selection). It is deliberately modest: its goal is to reduce information gaps — which tools actually get used, which routes prove stable — not to make the agent "smarter".
+
+## What the agent sees each turn
+
+The injected context is not folklore; it is inspectable. Each model turn receives, among other things: a structured task-context block (active task, current step, decisions so far), the compacted message history, and — on demand — digests of past sessions plus pointers to what other rooms covered. Because the assembly is explicit, anything in it can be audited: the agent can quote the exact blocks it received, and a reader can verify each claim against what was actually injected.
 
 ## Storage underneath
 

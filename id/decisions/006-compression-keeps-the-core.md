@@ -2,19 +2,19 @@
 
 **Status:** Diterima
 
-> *Pertanyaan yang dijawab ADR ini:* **Gimana kalau kompresi justru menghapus detail yang dibutuhkan task nanti?**
+> *Pertanyaan yang dijawab ADR ini:* **Bagaimana kalau kompresi justru menghapus detail yang dibutuhkan task nanti?**
 
 ## Masalah
 
 Kebutuhan awalnya blak-blakan:
 
-> *"Asisten yang bisa semuanya, bisa di mana pun, dan nggak pernah lupa konteks."*
+> *"Asisten yang bisa semuanya, bisa di mana pun, dan tidak pernah lupa konteks."*
 
-Riwayat chat saja gagal persis di sini. Dia membengkak sampai model kehilangan awal di tengah, atau dipotong dan agent lupa task-nya sendiri. Dan "lupa" itu bukan satu masalah — minimal empat: lupa fakta, lupa langkah sekarang, lupa sesi lampau, lupa apa yang dibahas percakapan lain.
+Riwayat chat saja gagal persis di sini. ia membengkak sampai model kehilangan awal di tengah, atau dipotong dan agent lupa task-nya sendiri. Dan "lupa" itu bukan satu masalah — minimal empat: lupa fakta, lupa langkah sekarang, lupa sesi lampau, lupa apa yang dibahas percakapan lain.
 
 ## Solusi
 
-Perlakukan "nggak pernah lupa" sebagai **store berlapis**, masing-masing memegang satu jenis kelupaan — semua dirancang di sekitar prinsip yang sama: *kompres agresif, tapi inti selalu ada.*
+Perlakukan "tidak pernah lupa" sebagai **store berlapis**, masing-masing memegang satu jenis kelupaan — semua dirancang di sekitar prinsip yang sama: *kompres agresif, tapi inti selalu ada.*
 
 | Jenis kelupaan | Store |
 |---|---|

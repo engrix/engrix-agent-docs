@@ -2,11 +2,11 @@
 
 **Status:** Diterima
 
-> *Pertanyaan yang dijawab ADR ini:* **Apa yang rusak diam-diam pas seseorang nambah tool tapi lupa satu titik wiring?**
+> *Pertanyaan yang dijawab ADR ini:* **Apa yang rusak diam-diam pas seseorang menambah tool tapi lupa satu titik wiring?**
 
 ## Masalah
 
-Registrasi tool berbasis konvensyen gagal diam-diam. Bukti historisnya: **lima insiden terpisah** di mana satu kategori tool utuh hilang dari jangkauan agent hanya karena satu import package kelupaan. Nggak ada yang crash; tools-nya cuma diam-diam berhenti eksis buat model. Hilang-diam-diam adalah mode gagal terburuk yang bisa dimiliki agent — lo cuma sadar pas agent gagal di task yang seharusnya dia kuasai.
+Registrasi tool berbasis konvensyen gagal diam-diam. Bukti historisnya: **lima insiden terpisah** di mana satu kategori tool utuh hilang dari jangkauan agent hanya karena satu import package kelupaan. Tidak ada yang crash; tools-nya hanya diam-diam berhenti eksis buat model. Hilang-diam-diam adalah mode gagal terburuk yang bisa dimiliki agent — baru tersadar saat agent gagal di task yang seharusnya dikuasainya.
 
 ## Solusi
 
@@ -21,6 +21,6 @@ Pemeriksa parity membandingkan keempat lapisan dengan registry live saat runtime
 
 ## Konsekuensi
 
-- "Kenapa agent nggak bisa make X?" jadi pertanyaan yang bisa dicek dengan satu perintah, bukan penggalian arkeologi.
+- "Kenapa agent tidak bisa memakai X?" jadi pertanyaan yang bisa dicek dengan satu perintah, bukan penggalian arkeologi.
 - Lima kegagalan historis itu jadi mustahil terulang diam-diam — mereka akan menyalakan parity check di momen mereka terjadi.
-- Tool baru butuh nyentuh empat titik, kelihatannya lebih berat — tapi disiplin ini menggantikan sesi debugging berulang yang masing-masing biayanya lebih besar dari seremoninya.
+- Tool baru butuh menyentuh empat titik, kelihatannya lebih berat — tapi disiplin ini menggantikan sesi debugging berulang yang masing-masing biayanya lebih besar dari seremoninya.

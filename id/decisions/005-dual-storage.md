@@ -1,12 +1,12 @@
-﻿# ADR-005 — Dua Engine Storage, Masing-masing untuk yang Dia Kuasai
+﻿# ADR-005 — Dua Engine Storage, Masing-masing untuk yang ia Kuasai
 
 **Status:** Diterima
 
-> *Pertanyaan yang dijawab ADR ini:* **Kenapa bawa dua database padahal satu secara teknis bisa ngerjain dua-duanya?**
+> *Pertanyaan yang dijawab ADR ini:* **Kenapa bawa dua database padahal satu secara teknis bisa ngerjain keduanya?**
 
 ## Masalah
 
-Agent butuh dua jenis memori yang tidak kompatibel: **state terstruktur relasional** (fakta sesi, posisi task, catatan verifikasi) yang harus konsisten dan bisa di-query, dan **konten semantik** (dokumen, digest percakapan, poin knowledge) yang harus ditemukan berdasarkan makna, bukan kecocokan persis. Memaksa salah satunya ke engine yang salah bikin dua-duanya lebih susah.
+Agent butuh dua jenis memori yang tidak kompatibel: **state terstruktur relasional** (fakta sesi, posisi task, catatan verifikasi) yang harus konsisten dan bisa di-query, dan **konten semantik** (dokumen, digest percakapan, poin knowledge) yang harus ditemukan berdasarkan makna, bukan kecocokan persis. Memaksa salah satunya ke engine yang salah membuat keduanya lebih sulit.
 
 ## Solusi
 
@@ -14,6 +14,6 @@ Agent butuh dua jenis memori yang tidak kompatibel: **state terstruktur relasion
 
 ## Konsekuensi
 
-- Deployment tanpa dependency: seluruh agent jalan dari satu folder — nggak butuh database server buat state terstruktur.
+- Deployment tanpa dependency: seluruh agent jalan dari satu folder — tidak butuh database server buat state terstruktur.
 - Instance paralel jadi aman dengan membalik satu setelan (embedded → server vector mode) daripada re-arsitektur.
 - Evolusi schema dikendalikan migrasi, bukan `ALTER TABLE` tersebar di kode — memori agent hidup lebih lama dari versi mana pun.

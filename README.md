@@ -1,4 +1,4 @@
-# Engrix Agent — Architecture Portfolio
+﻿# Engrix Agent — Architecture Portfolio
 
 **Engrix Agent** is a self-hosted, single-owner AI engineering agent that plans, executes, and verifies real work on a real machine: ~425 registered tools across 22 categories, layered memory that survives context compression, and four UI surfaces — from a full workspace to an always-on-top desktop copilot.
 
@@ -6,7 +6,7 @@
 
 An unedited screen recording of one real task (research across three source types → synthesis → terminal execution → Excel deliverable), captured by the agent's own screen-recorder:
 
-[![Engrix Agent — live task demo](assets/demo-preview.jpg)](assets/demo.mp4)
+<video src="assets/demo.mp4" poster="assets/demo-preview.jpg" controls muted preload="metadata" width="100%"></video>
 
 ▶ **[Watch the demo video](assets/demo.mp4)** — 8m34s, no audio, 1× speed. Recorded by pressing the in-app record button; that button is itself one of the agent's tools. (All numbers on these pages were captured by a live registry-parity checker run on **2026-10-16** against commit `b1a7a71`.)
 

@@ -1,12 +1,12 @@
-# Gambaran Sistem
+﻿# Gambaran Sistem
 
-## Pertanyaan kritisnya
+## Pertanyaannya
 
-> *Gimana nasib sistem kayak gini pas jalan delapan jam nonstop — tetap utuh, atau ujung-ujungnya tiap bagian harus di-awasin manual?*
+> *Bagaimana kondisi sistem setelah berjalan delapan jam nonstop — tetap utuh, atau ujungnya tiap bagian harus diawasi manual?*
 
-Pertanyaan itulah yang mendorong tiap keputusan di halaman ini. Skrip demo sekali jalan itu gampang; sistem yang tetap ngambil keputusan bener di jam kedelapan — dengan konteks yang udah terkompresi, belasan drawer tool kebuka, dan tiga side-quest dari awal sesi — itu masalah arsitektur.
+Pertanyaan itulah yang mendorong tiap keputusan di halaman ini. Skrip demo sekali jalan itu mudah; sistem yang tetap mengambil keputusan benar di jam kedelapan — dengan konteks yang telah terkompresi, belasan drawer tool terbuka, dan tiga side-quest dari awal sesi — itu masalah arsitektur.
 
-Engrix Agent adalah AI engineering agent yang berjalan lokal, untuk satu owner: satu proses FastAPI backend, satu frontend React yang dilayani oleh proses itu sendiri, dan shell Electron opsional yang memakai frontend yang sama sebagai copilot desktop always-on-top. Dia jalan di Windows — target deployment-nya adalah mesin owner — dan setiap angka di halaman-halaman ini (jumlah tool, parity registry) diambil dari checker live yang dijalankan 16-10-2026 terhadap commit `b1a7a71`.
+Engrix Agent adalah AI engineering agent yang berjalan lokal, untuk satu owner: satu proses FastAPI backend, satu frontend React yang dilayani oleh proses itu sendiri, dan shell Electron opsional yang memakai frontend yang sama sebagai copilot desktop always-on-top. ia jalan di Windows — target deployment-nya adalah mesin owner — dan setiap angka di halaman-halaman ini (jumlah tool, parity registry) diambil dari checker live yang dijalankan 16-10-2026 terhadap commit `b1a7a71`.
 
 ## Kenapa foldernya dipisah-pisah
 
@@ -31,7 +31,7 @@ frontend/            UI workspace React (dilayani oleh backend)
 desktop/             shell Electron (memakai build frontend yang sama)
 ```
 
-Pemisahan ini bukan estetika — dia adalah kontrak perawatan:
+Pemisahan ini bukan estetika — ia adalah kontrak perawatan:
 
 - **`agent/` boleh memanggil `memory/`, tidak boleh `storage/` langsung.** Detail storage tidak bisa merembes ke logika orkestrasi.
 - **`memory/` memegang makna domain, `storage/` memegang mekanik.** Ganti engine storage = sentuh satu layer, bukan dua puluh call site.
@@ -82,8 +82,8 @@ Browser dapat workspace penuh; copilot Electron memuat build yang identik lewat 
 
 ## Alternatif yang dipertimbangkan
 
-- **Microservices** (backend dipecah jadi service terpisah) — ditolak: agent butuh state in-process yang dibagi (registry, state drawer, memori) dan deployment satu mesin; memecahnya cuma membeli masalah distributed-systems yang nggak dibutuhkan siapa pun di sini.
+- **Microservices** (backend dipecah jadi service terpisah) — ditolak: agent butuh state in-process yang dibagi (registry, state drawer, memori) dan deployment satu mesin; memecahnya hanya membeli masalah distributed-systems yang tidak dibutuhkan siapa pun di sini.
 - **PostgreSQL sejak awal** — ditolak buat sekarang: satu penulis dengan SQLite embedded mode WAL sudah nutup bebannya; layer storage mengisolasi keputusan pindah engine (lihat [dual storage](../decisions/005-dual-storage.md)).
-- **Memori vector-only** — ditolak: recall semantik nggak bisa mereproduksi fakta eksak; ekstraksi mekanis dan pencarian vektor menyelesaikan mode kelupaan yang beda, jadi dua-duanya tetap ada.
+- **Memori vector-only** — ditolak: recall semantik tidak bisa mereproduksi fakta eksak; ekstraksi mekanis dan pencarian vektor menyelesaikan mode kelupaan yang berbeda, jadi keduanya tetap ada.
 
-Lanjut ke: [Sistem Tool](tool-system.md) — bagian yang bikin agent bisa mengendalikan ratusan tools secara koheren.
+Lanjut ke: [Sistem Tool](tool-system.md) — bagian yang membuat agent dapat mengendalikan ratusan tools secara koheren.

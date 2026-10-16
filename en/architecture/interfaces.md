@@ -1,6 +1,6 @@
-# Interfaces & Reach
+﻿# Interfaces & Reach
 
-## The critical question
+## The question
 
 > *How do you keep four different UI surfaces identical — without paying four times the frontend maintenance?*
 

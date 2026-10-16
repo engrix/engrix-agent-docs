@@ -1,12 +1,12 @@
-# Antarmuka & Jangkauan
+﻿# Antarmuka & Jangkauan
 
-## Pertanyaan kritisnya
+## Pertanyaannya
 
-> *Gimana empat permukaan UI yang beda-beda tetap identik — tanpa bayar maintenance frontend dikali empat?*
+> *Bagaimana empat permukaan UI yang berbeda-berbeda tetap identik — tanpa biaya maintenance frontend dikali empat?*
 
-Jawaban salahnya: bikin empat aplikasi. Jawaban benarnya: satu aplikasi yang dirender di empat ukuran, dan cuma wrapper desktop-nya yang beneran kode native.
+Jawaban yang salah: membuat empat aplikasi. Jawaban yang benar: satu aplikasi yang dirender di empat ukuran, dan hanya wrapper desktop-nya yang benar-benar kode native.
 
-**Dalam satu kalimat:** satu build frontend, empat rendering-nya; keempatnya nyampe ke engine lewat cara yang sama, dan shell desktop cuma nambahin fitur level jendela (always-on-top, hotkey global, tray, anti-capture) tanpa nyentuh aplikasinya.
+**Dalam satu kalimat:** satu build frontend, empat rendering-nya; keempatnya nyampe ke engine lewat cara yang sama, dan shell desktop hanya nambahin fitur level jendela (always-on-top, hotkey global, tray, anti-capture) tanpa menyentuh aplikasinya.
 
 ## Empat permukaan, satu engine
 
@@ -29,7 +29,7 @@ satu build (frontend/dist)
                                (frameless · always-on-top · hotkey global · tray)
 ```
 
-Shell desktop sengaja tipis: dia memuat build yang sama dengan flag `?ui=desktop` dan tidak pernah menggandakan engine — health check mendeteksi engine yang sudah jalan dan menyambung ke sana. Satu codebase, satu dist, empat permukaan.
+Shell desktop sengaja tipis: ia memuat build yang sama dengan flag `?ui=desktop` dan tidak pernah menggandakan engine — health check mendeteksi engine yang sudah jalan dan menyambung ke sana. Satu codebase, satu dist, empat permukaan.
 
 ## Apa saja yang bisa agent jangkau
 
@@ -45,4 +45,4 @@ Inventaris tool (detail di [sistem tool](tool-system.md)) memberi agent jangkaua
 
 ## Deployment
 
-Pack portabel membundel source, virtual environment, dan build frontend di belakang satu launcher `engrix.exe` — pindahkan foldernya ke path mana pun di mesin, klik dua kali. Engine-nya sendiri tetap proses lokal biasa (dia butuh akses hardware beneran: kamera, ADB, kontrol desktop), sementara service pendukung jalan di Docker Compose.
+Pack portabel membundel source, virtual environment, dan build frontend di belakang satu launcher `engrix.exe` — pindahkan foldernya ke path mana pun di mesin, klik dua kali. Engine-nya sendiri tetap proses lokal biasa (ia butuh akses hardware sungguhan: kamera, ADB, kontrol desktop), sementara service pendukung jalan di Docker Compose.
