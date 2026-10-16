@@ -1,5 +1,11 @@
 # Antarmuka & Jangkauan
 
+## Pertanyaan kritisnya
+
+> *Gimana empat permukaan UI yang beda-beda tetap identik — tanpa bayar maintenance frontend dikali empat?*
+
+Jawaban salahnya: bikin empat aplikasi. Jawaban benarnya: satu aplikasi yang dirender di empat ukuran, dan cuma wrapper desktop-nya yang beneran kode native.
+
 ## Empat permukaan, satu engine
 
 Engine chat yang sama bisa diakses lewat empat mode UI, semua dirender dari satu build frontend:
@@ -10,6 +16,16 @@ Engine chat yang sama bisa diakses lewat empat mode UI, semua dirender dari satu
 | **Panel** | Panel copilot 380px melayang di atas workspace |
 | **Bubble** | Satu tombol brand-mark dengan dot status live |
 | **Desktop** | Jendela Electron frameless (400×640), always-on-top *di atas aplikasi lain*, hotkey global, tray icon, anti screen-capture |
+
+```
+satu build (frontend/dist)
+    │
+    ├─ full    workspace    ← browser, route default
+    ├─ panel   380px        ← route sama, flag ui-mode
+    ├─ bubble  tombol       ← route sama, flag ui-mode
+    └─ desktop jendela       ← shell Electron muat dist via ?ui=desktop
+                               (frameless · always-on-top · hotkey global · tray)
+```
 
 Shell desktop sengaja tipis: dia memuat build yang sama dengan flag `?ui=desktop` dan tidak pernah menggandakan engine — health check mendeteksi engine yang sudah jalan dan menyambung ke sana. Satu codebase, satu dist, empat permukaan.
 

@@ -1,5 +1,11 @@
 # Interfaces & Reach
 
+## The critical question
+
+> *How do you keep four different UI surfaces identical — without paying four times the frontend maintenance?*
+
+The wrong answer is four apps. The right answer is one app rendered at four sizes, with only the desktop wrapper being genuinely native code.
+
 ## Four surfaces, one engine
 
 The same chat engine is reachable through four UI modes, all rendered from one frontend build:
@@ -10,6 +16,16 @@ The same chat engine is reachable through four UI modes, all rendered from one f
 | **Panel** | 380px floating copilot panel over the workspace |
 | **Bubble** | A single brand-mark button with a live status dot |
 | **Desktop** | Frameless Electron window (400×640), always-on-top *above other applications*, global hotkey, tray icon, excluded from screen capture |
+
+```
+one build (frontend/dist)
+    │
+    ├─ full   workspace   ← browser, default route
+    ├─ panel  380px       ← same route, ui-mode flag
+    ├─ bubble button      ← same route, ui-mode flag
+    └─ desktop window     ← Electron shell loads dist with ?ui=desktop
+                             (frameless · always-on-top · global hotkey · tray)
+```
 
 The desktop shell is a thin layer: it loads the identical frontend build with a `?ui=desktop` flag and never duplicates or spawns its own engine — it detects an already-running engine via health check and connects. One codebase, one dist, four surfaces.
 

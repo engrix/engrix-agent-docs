@@ -1,6 +1,8 @@
-# ADR-005 — Two Storage Engines, Each for What It's Good At
+﻿# ADR-005 — Two Storage Engines, Each for What It's Good At
 
 **Status:** Accepted
+
+> *The question this ADR answers:* **Why carry two databases when one could technically do both jobs?**
 
 ## Problem
 

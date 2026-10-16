@@ -1,6 +1,8 @@
-# ADR-008 — Four Surfaces from One Build
+﻿# ADR-008 — Four Surfaces from One Build
 
 **Status:** Accepted
+
+> *The question this ADR answers:* **How do four UI surfaces stay identical without four times the maintenance?**
 
 ## Problem
 

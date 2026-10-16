@@ -1,5 +1,11 @@
 # System Overview
 
+## The critical question
+
+> *What happens when an agent like this runs for eight hours straight — does it hold together, or does every piece eventually need babysitting?*
+
+That question drove every decision on this page. A one-off demo script is easy; a system that still makes correct choices at hour eight — with a compressed context, dozens of opened tool drawers, and three side quests from earlier in the session — is an architecture problem.
+
 Engrix Agent is a local-first engineering agent: one FastAPI backend process, one React frontend served by that process, and an optional Electron shell that reuses the same frontend as an always-on-top desktop copilot.
 
 ## Why the folders are separated
@@ -33,7 +39,36 @@ The separation is not aesthetics — it is the maintenance contract:
 
 ## One process, many surfaces
 
-The backend serves the built frontend itself, so a deployment is one process, one port, one version. The browser gets the full workspace; the Electron copilot loads the identical build with a query flag (`?ui=desktop`), so all UI modes share one codebase and one dist.
+The backend serves the built frontend itself, so a deployment is one process, one port, one version:
+
+```mermaid
+flowchart LR
+    subgraph clients["Clients"]
+        B["Browser — full workspace"]
+        D["Electron copilot — always-on-top"]
+    end
+    subgraph engine["One process (port 8420)"]
+        M["FastAPI main.py"]
+        A["agent/ orchestration loop"]
+        T["tools/ 22 drawers, ~425 tools"]
+        MEM["memory/ + storage/ + knowledge/"]
+    end
+    subgraph externals["Reach"]
+        GH["GitHub"]
+        BR["Browsers"]
+        VP["VPS over SSH"]
+        DV["Android + desktop"]
+        EM["Email + Telegram"]
+    end
+    B --> M
+    D --> M
+    M --> A
+    A --> T
+    A --> MEM
+    T --> externals
+```
+
+The browser gets the full workspace; the Electron copilot loads the identical build with a query flag (`?ui=desktop`), so all UI modes share one codebase and one dist.
 
 ## Stack
 

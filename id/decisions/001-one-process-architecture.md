@@ -1,6 +1,8 @@
-# ADR-001 — Satu Proses Melayani Semua
+﻿# ADR-001 — Satu Proses Melayani Semua
 
 **Status:** Diterima
+
+> *Pertanyaan yang dijawab ADR ini:* **Kalau frontend dan backend beda versi — siapa yang pegang kebenaran?**
 
 ## Masalah
 

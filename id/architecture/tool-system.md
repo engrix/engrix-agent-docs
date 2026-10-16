@@ -18,6 +18,19 @@ Tools diorganisir kayak perpustakaan beneran — katalognya selalu kelihatan, ta
 | **Kategori** | Laci-lacinya — dibuka eksplisit pas task butuh | 22 (+1 shortcut satu keluarga) |
 | **Subdomain** | Laci di dalam laci — subset dari kategori besar | 40 |
 
+Pemandangan tiap request tetap datar seberapapun dalamnya inventaris:
+
+```
+tiap request ──▶ [ always-on: 17 tool ]
+                 [ menu: 22 nama kategori + jumlah + contoh trigger ]  ◀── kecil, statis
+                         │
+       model milih by intent, satu call:  open_tool_category("github")
+                         │
+                         ▼
+       sisa sesi ──▶ [ drawer github: 83 schema penuh ]  ◀── dimuat sekali
+                     [ opsi subdomain: repo_code (16) · pr (3) · … ]
+```
+
 Saat task mulai, model cuma lihat menu ringkas: nama kategori, jumlah tool, dan contoh trigger. Membuka kategori (`open_tool_category`) memuat schema penuh laci itu plus instruksi pemakaian detail **untuk sisa sesi** — nggak perlu buka ulang. Shortcut satu keluarga (`code_workspace`) membuka lima drawer kode sekaligus buat sesi engineering berat.
 
 ## Disiplin pemilihan

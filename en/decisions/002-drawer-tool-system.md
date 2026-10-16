@@ -1,6 +1,8 @@
-# ADR-002 — A Drawer System for Hundreds of Tools
+﻿# ADR-002 — A Drawer System for Hundreds of Tools
 
 **Status:** Accepted
+
+> *The question this ADR answers:* **How do hundreds of tools stay visible without drowning every request?**
 
 ## Problem
 

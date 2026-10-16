@@ -1,6 +1,8 @@
-# ADR-004 — Providers as Configuration, Not Code
+﻿# ADR-004 — Providers as Configuration, Not Code
 
 **Status:** Accepted
+
+> *The question this ADR answers:* **What if the owner wants to add a provider at 2 a.m. without touching code?**
 
 ## Problem
 

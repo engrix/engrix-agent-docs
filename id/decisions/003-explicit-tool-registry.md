@@ -1,6 +1,8 @@
-# ADR-003 — Registry Tool Eksplisit yang Terverifikasi
+﻿# ADR-003 — Registry Tool Eksplisit yang Terverifikasi
 
 **Status:** Diterima
+
+> *Pertanyaan yang dijawab ADR ini:* **Apa yang rusak diam-diam pas seseorang nambah tool tapi lupa satu titik wiring?**
 
 ## Masalah
 

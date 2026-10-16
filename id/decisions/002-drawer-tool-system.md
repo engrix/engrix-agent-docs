@@ -1,6 +1,8 @@
-# ADR-002 — Sistem Laci untuk Ratusan Tool
+﻿# ADR-002 — Sistem Laci untuk Ratusan Tool
 
 **Status:** Diterima
+
+> *Pertanyaan yang dijawab ADR ini:* **Gimana ratusan tool tetap terlihat tanpa menenggelamkan tiap request?**
 
 ## Masalah
 

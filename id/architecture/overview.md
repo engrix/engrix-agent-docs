@@ -1,5 +1,11 @@
 # Gambaran Sistem
 
+## Pertanyaan kritisnya
+
+> *Gimana nasib sistem kayak gini pas jalan delapan jam nonstop — tetap utuh, atau ujung-ujungnya tiap bagian harus di-awasin manual?*
+
+Pertanyaan itulah yang mendorong tiap keputusan di halaman ini. Skrip demo sekali jalan itu gampang; sistem yang tetap ngambil keputusan bener di jam kedelapan — dengan konteks yang udah terkompresi, belasan drawer tool kebuka, dan tiga side-quest dari awal sesi — itu masalah arsitektur.
+
 Engrix Agent adalah AI engineering agent yang berjalan lokal, untuk satu owner: satu proses FastAPI backend, satu frontend React yang dilayani oleh proses itu sendiri, dan shell Electron opsional yang memakai frontend yang sama sebagai copilot desktop always-on-top.
 
 ## Kenapa foldernya dipisah-pisah
@@ -33,7 +39,36 @@ Pemisahan ini bukan estetika — dia adalah kontrak perawatan:
 
 ## Satu proses, banyak permukaan
 
-Backend melayani build frontend-nya sendiri, jadi satu deployment = satu proses, satu port, satu versi. Browser dapat workspace penuh; copilot Electron memuat build yang identik lewat query flag (`?ui=desktop`) — semua mode UI berbagi satu codebase dan satu dist.
+Backend melayani build frontend-nya sendiri, jadi satu deployment = satu proses, satu port, satu versi:
+
+```mermaid
+flowchart LR
+    subgraph clients["Klien"]
+        B["Browser — workspace penuh"]
+        D["Copilot Electron — always-on-top"]
+    end
+    subgraph engine["Satu proses (port 8420)"]
+        M["FastAPI main.py"]
+        A["agent/ loop orkestrasi"]
+        T["tools/ 22 laci, ±425 tool"]
+        MEM["memory/ + storage/ + knowledge/"]
+    end
+    subgraph externals["Jangkauan"]
+        GH["GitHub"]
+        BR["Browser"]
+        VP["VPS via SSH"]
+        DV["Android + desktop"]
+        EM["Email + Telegram"]
+    end
+    B --> M
+    D --> M
+    M --> A
+    A --> T
+    A --> MEM
+    T --> externals
+```
+
+Browser dapat workspace penuh; copilot Electron memuat build yang identik lewat query flag (`?ui=desktop`) — semua mode UI berbagi satu codebase dan satu dist.
 
 ## Stack
 

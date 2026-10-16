@@ -1,6 +1,8 @@
-# ADR-007 — One-Way Layering, Verified Live
+﻿# ADR-007 — One-Way Layering, Verified Live
 
 **Status:** Accepted
+
+> *The question this ADR answers:* **How do you stop a codebase from quietly growing circular imports?**
 
 ## Problem
 

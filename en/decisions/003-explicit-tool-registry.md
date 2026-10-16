@@ -1,6 +1,8 @@
-# ADR-003 — An Explicit, Verified Tool Registry
+﻿# ADR-003 — An Explicit, Verified Tool Registry
 
 **Status:** Accepted
+
+> *The question this ADR answers:* **What silently breaks when someone adds a tool and forgets one wiring point?**
 
 ## Problem
 

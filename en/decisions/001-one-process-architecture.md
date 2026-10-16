@@ -1,6 +1,8 @@
-# ADR-001 — One Process Serves Everything
+﻿# ADR-001 — One Process Serves Everything
 
 **Status:** Accepted
+
+> *The question this ADR answers:* **What if the frontend and backend drift apart in version — who serves the truth?**
 
 ## Problem
 

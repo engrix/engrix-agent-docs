@@ -18,6 +18,19 @@ Tools are organized like a physical library — the catalog is always visible, b
 | **Categories** | The drawers — opened explicitly when a task needs them | 22 (+1 family shortcut) |
 | **Subdomains** | Drawers inside drawers — a subset of a big category | 40 |
 
+The per-request view stays flat no matter how deep the inventory goes:
+
+```
+every request ──▶ [ always-on: 17 tools ]
+                  [ menu: 22 category names + counts + triggers ]   ◀── small, static
+                          │
+        model picks by intent, one call:  open_tool_category("github")
+                          │
+                          ▼
+        rest of session ──▶ [ github drawer: 83 full schemas ]  ◀── loaded once
+                             [ subdomain option: repo_code (16) · pr (3) · … ]
+```
+
 When a task starts, the model sees a compact menu: category names, tool counts, and short trigger examples. Opening a category (`open_tool_category`) loads that drawer's full schemas and detailed usage instructions **for the rest of the session** — no need to reopen. A family shortcut (`code_workspace`) opens five code-related drawers at once for heavy engineering sessions.
 
 ## Selection discipline

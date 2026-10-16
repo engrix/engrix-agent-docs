@@ -1,6 +1,8 @@
-# ADR-008 — Empat Permukaan dari Satu Build
+﻿# ADR-008 — Empat Permukaan dari Satu Build
 
 **Status:** Diterima
+
+> *Pertanyaan yang dijawab ADR ini:* **Gimana empat permukaan UI tetap identik tanpa maintenance dikali empat?**
 
 ## Masalah
 

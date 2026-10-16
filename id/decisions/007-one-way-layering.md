@@ -1,6 +1,8 @@
-# ADR-007 — Layering Satu Arah yang Diverifikasi Live
+﻿# ADR-007 — Layering Satu Arah yang Diverifikasi Live
 
 **Status:** Diterima
+
+> *Pertanyaan yang dijawab ADR ini:* **Gimana cara mencegah codebase diam-diam tumbuh circular import?**
 
 ## Masalah
 

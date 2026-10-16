@@ -1,6 +1,8 @@
-# ADR-006 — Kompresi yang Menjaga Inti (Desain Memori)
+﻿# ADR-006 — Kompresi yang Menjaga Inti (Desain Memori)
 
 **Status:** Diterima
+
+> *Pertanyaan yang dijawab ADR ini:* **Gimana kalau kompresi justru menghapus detail yang dibutuhkan task nanti?**
 
 ## Masalah
 

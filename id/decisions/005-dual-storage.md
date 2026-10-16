@@ -1,6 +1,8 @@
-# ADR-005 — Dua Engine Storage, Masing-masing untuk yang Dia Kuasai
+﻿# ADR-005 — Dua Engine Storage, Masing-masing untuk yang Dia Kuasai
 
 **Status:** Diterima
+
+> *Pertanyaan yang dijawab ADR ini:* **Kenapa bawa dua database padahal satu secara teknis bisa ngerjain dua-duanya?**
 
 ## Masalah
 

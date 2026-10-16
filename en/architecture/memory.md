@@ -21,6 +21,27 @@ Memory is a domain layer (`memory/`) with specialized stores, each solving one k
 | **Episode index** | Cross-session digests formatted for the prompt — past experiences are available on demand, not dumped by default |
 | **Cross-room topics** | Pointers only — the index lists what other conversations covered; content is retrieved on demand from the vector store |
 
+How the pieces feed one turn of the loop:
+
+```mermaid
+flowchart TD
+    TURN["model turn starts"]
+    TASK["task_position<br/>TASK_CONTEXT block — always injected"]
+    HIST["history<br/>compacted messages, tool noise stripped"]
+    EP["episode index<br/>past sessions, on demand"]
+    TURN --> TASK
+    TURN --> HIST
+    HIST -->|too deep?| COMP["compaction — compress outputs, keep the skeleton"]
+    COMP --> HIST
+    EP -.->|"only when relevant"| TURN
+    TASK --> PROMPT["assembled prompt"]
+    HIST --> PROMPT
+    PROMPT --> OUT["model answers"]
+    OUT -->|facts worth keeping| FACT["facts store (mechanical extraction only)"]
+    OUT -->|task closes| SUM["task summary + grade"]
+    SUM -.->|"next session"| EP
+```
+
 The design principle: **the deeper the chat, the more it compresses — but the core stays.** An agent in hour four of a session still has the task's skeleton in front of it every single turn.
 
 ## Storage underneath

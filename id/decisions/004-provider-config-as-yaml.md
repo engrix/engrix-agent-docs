@@ -1,6 +1,8 @@
-# ADR-004 — Provider Sebagai Konfigurasi, Bukan Kode
+﻿# ADR-004 — Provider Sebagai Konfigurasi, Bukan Kode
 
 **Status:** Diterima
+
+> *Pertanyaan yang dijawab ADR ini:* **Gimana kalau owner mau nambah provider jam 2 pagi tanpa nyentuh kode?**
 
 ## Masalah
 

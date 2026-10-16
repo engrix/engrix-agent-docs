@@ -1,6 +1,8 @@
-# ADR-006 — Compression That Keeps the Core (Memory Design)
+﻿# ADR-006 — Compression That Keeps the Core (Memory Design)
 
 **Status:** Accepted
+
+> *The question this ADR answers:* **What if compression erases exactly the detail the task needs later?**
 
 ## Problem
 

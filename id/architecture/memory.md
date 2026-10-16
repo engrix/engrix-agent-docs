@@ -21,6 +21,27 @@ Memori adalah layer domain (`memory/`) berisi store-store terspesialisasi, masin
 | **Episode index** | Digest lintas-sesi yang di-format on demand — pengalaman masa lalu tersedia saat diminta, nggak di-dump default |
 | **Cross-room topics** | Pointer saja — index mencatat topik apa yang dibahas percakapan lain; isinya diambil on demand dari vector store |
 
+Gimana potongan-potongan itu menyatu di satu giliran loop:
+
+```mermaid
+flowchart TD
+    TURN["giliran model mulai"]
+    TASK["task_position<br/>blok TASK_CONTEXT — selalu di-inject"]
+    HIST["history<br/>pesan terkompaksi, noise tool dibuang"]
+    EP["episode index<br/>sesi masa lalu, on demand"]
+    TURN --> TASK
+    TURN --> HIST
+    HIST -->|kelewat dalam?| COMP["kompaksi — output dipadatkan, kerangka tetap"]
+    COMP --> HIST
+    EP -.->|cuma pas relevan| TURN
+    TASK --> PROMPT["prompt tersusun"]
+    HIST --> PROMPT
+    PROMPT --> OUT["model jawab"]
+    OUT -->|fakta layak simpan| FACT["facts store (ekstraksi mekanis saja)"]
+    OUT -->|task selesai| SUM["task summary + grade"]
+    SUM -.->|sesi berikutnya| EP
+```
+
 Prinsip desainnya: **makin dalam chat, makin terkompresi — tapi intinya tetap ada.** Agent di jam keempat sesi masih punya kerangka task-nya di depan matanya di setiap giliran.
 
 ## Storage di bawahnya
