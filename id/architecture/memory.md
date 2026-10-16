@@ -46,6 +46,6 @@ Prinsip desainnya: **makin dalam chat, makin terkompresi — tapi intinya tetap 
 
 ## Storage di bawahnya
 
-Layer infrastruktur (`storage/`) memegang satu koneksi SQLite (WAL, foreign keys, busy timeout, write-lock cursor terlindungi) dengan schema versioning dan migrasi. Kode domain nggak pernah nyentuh wiring SQL mentah — satu layer pegang mekanik, satu pegang makna. Recall semantik naik vector store terpisah (Qdrant) yang bisa jalan embedded buat satu instance atau server mode buat instance paralel.
+Layer infrastruktur (`storage/`) memegang satu koneksi SQLite (WAL, foreign keys, busy timeout, write-lock cursor terlindungi) dengan schema versioning dan migrasi. Kode domain nggak pernah nyentuh wiring SQL mentah — satu layer pegang mekanik, satu pegang makna. Konkurensi diselesaikan dengan tetap single-writer: WAL bikin reader jalan terus padahal satu write lock lagi dipegang, dan aturan deployment-nya satu proses engine per database — instance paralel berbagi Qdrant server-mode, bukan file SQLite yang sama. Recall semantik naik vector store terpisah (Qdrant) yang bisa jalan embedded buat satu instance atau server mode buat instance paralel.
 
 Lanjut ke: [Antarmuka](interfaces.md) — empat cara ngomong ke engine yang sama.
