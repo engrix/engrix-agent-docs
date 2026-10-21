@@ -6,7 +6,7 @@
 
 Pertanyaan itulah yang mendorong tiap keputusan di halaman ini. Skrip demo sekali jalan itu mudah; sistem yang tetap mengambil keputusan benar di jam kedelapan — dengan konteks yang telah terkompresi, belasan drawer tool terbuka, dan tiga side-quest dari awal sesi — itu masalah arsitektur.
 
-Engrix Agent adalah AI engineering agent yang berjalan lokal, untuk satu owner: satu proses FastAPI backend, satu frontend React yang dilayani oleh proses itu sendiri, dan shell Electron opsional yang memakai frontend yang sama sebagai copilot desktop always-on-top. ia jalan di Windows — target deployment-nya adalah mesin owner — dan setiap angka di halaman-halaman ini (jumlah tool, parity registry) diambil dari checker live yang dijalankan 16-10-2026 terhadap commit `b1a7a71`.
+Engrix Agent adalah AI engineering agent yang berjalan lokal, untuk satu owner: satu proses FastAPI backend, satu frontend React yang dilayani oleh proses itu sendiri, dan shell Electron opsional yang memakai frontend yang sama sebagai copilot desktop always-on-top. ia jalan di Windows — target deployment-nya adalah mesin owner — dan setiap angka di halaman-halaman ini (jumlah tool, parity registry) diambil dari checker live yang dijalankan 21-10-2026 terhadap commit `9b906dae`.
 
 ## Kenapa foldernya dipisah-pisah
 
@@ -17,12 +17,12 @@ engrix/
 ├── config.py        konfigurasi & path (tidak bergantung apa pun)
 ├── storage/         INFRASTRUKTUR: koneksi SQLite, schema, migrasi
 ├── memory/          DOMAIN: apa yang agent "tahu" (riwayat, fakta, task)
-├── knowledge/       retrieval semantik (vector store)
+├── knowledge.py     retrieval semantik (vector store)
 ├── formatting/      rendering output
 ├── curation/        pipeline kurasi knowledge
 ├── routing/         state drawer kategori & hint routing
 ├── personality/     persona & perakitan prompt
-├── tools/           ±425 kapabilitas yang bisa dieksekusi
+├── tools/           459 kapabilitas yang bisa dieksekusi
 ├── ml/              online learning & ranking
 ├── agent/           loop orkestrasi (planning, eksekusi, verifikasi)
 ├── bootstrap/       wiring: menyambungkan semuanya saat startup
@@ -50,7 +50,7 @@ flowchart LR
     subgraph engine["Satu proses (port 8420)"]
         M["FastAPI main.py"]
         A["agent/ loop orkestrasi"]
-        T["tools/ 22 laci, ±425 tool"]
+        T["tools/ 23 laci, 459 tool"]
         MEM["memory/ + storage/ + knowledge/"]
     end
     subgraph externals["Jangkauan"]

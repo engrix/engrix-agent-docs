@@ -13,6 +13,20 @@ Nothing on this page is dressed up. Each item states what exists today and what 
 | Deeper desktop overlay over other apps | **Partial** | Always-on-top copilot ships; richer interaction with host apps does not |
 | COM Office as tools (Word/Excel/PPT) | **Not started** | File-level Excel/CSV/PDF export ships today; controlling live Office apps is separate |
 
+## Recently landed
+
+Measured on 2026-10-21 against commit `9b906dae`:
+
+| Change | What it actually means |
+|---|---|
+| Registry grew to **459 tools across 23 categories** | The arithmetic still closes exactly: `459 = 440 categorized + 18 always-on + 1 meta-tool` |
+| Contract gate wired in (`check_contracts.py`) | Category literals, subdomains and always-on now have a two-way parity check that exits non-zero on drift, plus a self-test proving the gate can fail |
+| Two dead HTTP routes removed | `/api/kategori/scrape` and `/api/kategori_cepat` had no frontend caller (2 `fetch()` calls exist in the whole frontend; neither hits them). The capability behind them — `run_kategori_agent` — stays |
+| Backend test baseline is now runnable | `pytest.ini` pins `testpaths = tests` and `pythonpath = backend/src`. Baseline: **120 passed, 2 failed, 13 skipped, 9 xfailed**. Both failures are subprocess tests that do not inherit `PYTHONPATH` (`ModuleNotFoundError: No module named 'engrix'`) — an environment gap, not a registry defect; the gate itself passes when run with the path set |
+| `main.py` is 2,394 lines / 43 routes | The two removed routes account for the drop from 2,604. No router has been extracted yet |
+
+**Still not built:** the transport split (`main.py` into thin transport + per-feature handlers) and the single feature manifest. Both are designed, neither is implemented — this page will say so until they are.
+
 ## The honest open questions
 
 **Sub-agents — can their output even be trusted?** *What if a sub-agent edits code while the main loop is mid-task — who arbitrates conflicting writes?* The working answer: start read-only (research, verification, drafting), earn write access per trust tier, and make every sub-agent write land through the same approval gates the main agent uses. Nothing is built yet.

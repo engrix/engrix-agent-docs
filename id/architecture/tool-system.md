@@ -1,12 +1,12 @@
 ﻿# Sistem Tool
 
-Fitur paling menentukan dari Engrix Agent: **425 tool ter-register di 22 kategori**. Aritmatikanya tutup persis: `425 ter-register = 407 terkategori + 17 always-on + 1 meta-tool` — `open_tool_category`, si pembuka laci itu sendiri, sengaja di luar kategori. Checker yang sama juga melaporkan dua lint penamaan non-blocking (70 pasangan nama mirip — banyak yang memang disengaja, misal `email_*` vs `gmail_*` laci yang berbeda — dan satu nama di atas 40 char), direview, bukan disembunyikan. Diukur lewat registry parity checker, 16-10-2026, terhadap commit `b1a7a71`.
+Fitur paling menentukan dari Engrix Agent: **459 tool ter-register di 23 kategori**. Aritmatikanya tutup persis: `459 ter-register = 440 terkategori + 18 always-on + 1 meta-tool` — `open_tool_category`, si pembuka laci itu sendiri, sengaja di luar kategori. Checker yang sama juga melaporkan dua lint penamaan non-blocking (70 pasangan nama mirip — banyak yang memang disengaja, misal `email_*` vs `gmail_*` laci yang berbeda — dan satu nama di atas 40 char), direview, bukan disembunyikan. Diukur lewat registry parity checker, 21-10-2026, terhadap commit `9b906dae`.
 
 ## Pertanyaannya
 
 > *Bagaimana caranya agent bisa memakai ratusan tools tanpa kebingungan — dan pemilihannya tepat?*
 
-Pendekatan naif gagal di skala ini. Memasukkan 425 schema tool ke setiap request membuat prompt membengkak dan model tenggelam: nama yang mirip saling melebur, kualitas pemilihan turun, biaya token meledak. Menyembunyikan tool dari model sama sekali juga tidak bisa — ia tidak tahu apa yang tersedia.
+Pendekatan naif gagal di skala ini. Memasukkan 459 schema tool ke setiap request membuat prompt membengkak dan model tenggelam: nama yang mirip saling melebur, kualitas pemilihan turun, biaya token meledak. Menyembunyikan tool dari model sama sekali juga tidak bisa — ia tidak tahu apa yang tersedia.
 
 ## Solusinya: sistem laci tiga lapis
 
@@ -14,15 +14,15 @@ Tools diorganisir seperti perpustakaan sungguhan — katalognya selalu terlihat,
 
 | Lapis | Apa itu | Jumlah |
 |---|---|---|
-| **Always-on** | Tool planning, search, dan manajemen-diri yang tiap request butuhin | 17 |
-| **Kategori** | Laci-lacinya — dibuka eksplisit pas task butuh | 22 (+1 shortcut satu keluarga) |
+| **Always-on** | Tool planning, search, dan manajemen-diri yang tiap request butuhin | 18 |
+| **Kategori** | Laci-lacinya — dibuka eksplisit pas task butuh | 23 (+1 shortcut satu keluarga) |
 | **Subdomain** | Laci di dalam laci — subset dari kategori besar | 40 |
 
 Pemandangan tiap request tetap datar seberapapun dalamnya inventaris:
 
 ```
-tiap request ──▶ [ always-on: 17 tool ]
-                 [ menu: 22 nama kategori + jumlah + contoh trigger ]  ◀── kecil, statis
+tiap request ──▶ [ always-on: 18 tool ]
+                 [ menu: 23 nama kategori + jumlah + contoh trigger ]  ◀── kecil, statis
                          │
        model memilih by intent, satu call:  open_tool_category("github")
                          │

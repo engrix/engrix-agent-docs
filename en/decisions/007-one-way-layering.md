@@ -10,7 +10,7 @@ A grown codebase drifts into cycles: UI code imports storage, storage imports th
 
 ## Solution
 
-The engine is a package with **11 layers in one direction**:
+The engine is a package with **13 named layers in one direction**:
 
 ```
 config → storage → memory → knowledge → formatting → curation
@@ -19,7 +19,7 @@ config → storage → memory → knowledge → formatting → curation
 
 Higher layers may import lower ones; never the reverse. Domain code never writes SQL plumbing; orchestration never reads config files directly. The separation is the maintenance contract: one logical fix lands in one layer.
 
-The rule is verified, not aspirational: a dependency audit script maps every cross-package import and flags violations — the tool that found the only two real back-edges (router imports from the agent loop) during the restructure, which were then dissolved by moving the routers down a layer.
+The rule is verified, not aspirational: a dependency audit run during the restructure mapped every cross-package import and flagged violations — it found the only two real back-edges (router imports from the agent loop), which were then dissolved by moving the routers down a layer. That audit was a one-off during the migration and is not part of the shipped repository, so the layering is a review-time contract today rather than a gate that fails a build.
 
 ## Consequences
 

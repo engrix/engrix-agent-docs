@@ -6,7 +6,7 @@
 
 That question drove every decision on this page. A one-off demo script is easy; a system that still makes correct choices at hour eight — with a compressed context, dozens of opened tool drawers, and three side quests from earlier in the session — is an architecture problem.
 
-Engrix Agent is a local-first engineering agent: one FastAPI backend process, one React frontend served by that process, and an optional Electron shell that reuses the same frontend as an always-on-top desktop copilot. It runs on Windows — the deployment target is the owner's machine — and every hard number on these pages (tool counts, registry parity) was captured by a live checker run on 2026-10-16 against repo commit `b1a7a71`.
+Engrix Agent is a local-first engineering agent: one FastAPI backend process, one React frontend served by that process, and an optional Electron shell that reuses the same frontend as an always-on-top desktop copilot. It runs on Windows — the deployment target is the owner's machine — and every hard number on these pages (tool counts, registry parity) was captured by a live checker run on 2026-10-21 against repo commit `9b906dae`.
 
 ## Why the folders are separated
 
@@ -17,12 +17,12 @@ engrix/
 ├── config.py        configuration & paths (depends on nothing)
 ├── storage/         INFRASTRUCTURE: SQLite connections, schema, migrations
 ├── memory/          DOMAIN: what the agent "knows" (history, facts, tasks)
-├── knowledge/       semantic retrieval (vector store)
+├── knowledge.py     semantic retrieval (vector store)
 ├── formatting/      output rendering
 ├── curation/        knowledge curation pipeline
 ├── routing/         category drawer state & routing hints
 ├── personality/     persona & prompt assembly
-├── tools/           ~425 executable capabilities
+├── tools/           459 executable capabilities
 ├── ml/              online learning & ranking
 ├── agent/           the orchestration loop (planning, execution, verification)
 ├── bootstrap/       wiring: connects everything at startup
@@ -50,7 +50,7 @@ flowchart LR
     subgraph engine["One process (port 8420)"]
         M["FastAPI main.py"]
         A["agent/ orchestration loop"]
-        T["tools/ 22 drawers, ~425 tools"]
+        T["tools/ 23 drawers, 459 tools"]
         MEM["memory/ + storage/ + knowledge/"]
     end
     subgraph externals["Reach"]

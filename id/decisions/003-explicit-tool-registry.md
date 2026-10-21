@@ -17,7 +17,7 @@ Registrasi **eksplisit di empat titik tetap**, dan **pemeriksa parity live** men
 3. Router mengetahui kategori itu.
 4. `__init__` package meng-import modul untuk registrasi side-effect.
 
-Pemeriksa parity membandingkan keempat lapisan dengan registry live saat runtime dan melaporkan: ghost (didefinisikan tapi tak ter-register), tool hilang, liar tak terkategori, dan duplikat. Run live terakhir: **ghost 0, missing 0, duplikat 0** di 425 tool.
+Pemeriksa parity membandingkan keempat lapisan dengan registry live saat runtime dan melaporkan: ghost (didefinisikan tapi tak ter-register), tool hilang, liar tak terkategori, dan duplikat. Run live terakhir: **ghost 0, missing 0, duplikat 0** di 459 tool.
 
 ## Konsekuensi
 

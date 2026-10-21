@@ -13,6 +13,20 @@ Tidak ada yang dipoles di halaman ini. Tiap item menyatakan apa yang sudah ada s
 | Overlay desktop yang lebih dalam di aplikasi lain | **Partial** | Copilot always-on-top sudah jalan; interaksi kaya dengan app host belum |
 | COM Office sebagai tools (Word/Excel/PPT) | **Not started** | Export file Excel/CSV/PDF sudah berjalan saat ini; kendali aplikasi Office yang hidup itu terpisah |
 
+## Yang baru mendarat
+
+Diukur 21-10-2026 terhadap commit `9b906dae`:
+
+| Perubahan | Artinya sebenarnya |
+|---|---|
+| Registry tumbuh ke **459 tool di 23 kategori** | Aritmatikanya tetap tutup persis: `459 = 440 terkategori + 18 always-on + 1 meta-tool` |
+| Gate kontrak terpasang (`check_contracts.py`) | Literal kategori, subdomain, dan always-on kini punya pemeriksa parity dua arah yang keluar non-zero saat ada drift, plus self-test yang membuktikan gate-nya memang bisa gagal |
+| Dua route HTTP mati dihapus | `/api/kategori/scrape` dan `/api/kategori_cepat` tidak punya pemanggil dari frontend (total `fetch()` di seluruh frontend hanya 2; tidak ada yang menuju keduanya). Kemampuan di belakangnya — `run_kategori_agent` — tetap ada |
+| Baseline test backend kini bisa dijalankan | `pytest.ini` mengunci `testpaths = tests` dan `pythonpath = backend/src`. Baseline: **120 passed, 2 failed, 13 skipped, 9 xfailed**. Dua kegagalan itu test subprocess yang tidak mewarisi `PYTHONPATH` (`ModuleNotFoundError: No module named 'engrix'`) — celah environment, bukan registry rusak; gate-nya sendiri lulus saat dijalankan dengan path disetel |
+| `main.py` kini 2.394 baris / 43 route | Dua route yang dihapus menjelaskan penurunan dari 2.604. Belum ada router yang dipecah keluar |
+
+**Belum dibangun:** pemecahan transport (`main.py` jadi transport tipis + handler per fitur) dan manifest fitur tunggal. Keduanya sudah dirancang, belum diimplementasi — halaman ini akan terus menyebutnya begitu sampai benar-benar jadi.
+
 ## Pertanyaan terbuka yang jujur
 
 **Sub-agent — apakah outputnya bisa dipercaya?** *Kalau sub-agent mengedit kode sementara main loop masih di tengah task — siapa yang menjadi wasit tulisan yang bertabrakan?* Jawaban kerjanya: mulai dari read-only (riset, verifikasi, drafting), akses tulis diperoleh per tingkat kepercayaan, dan semua tulisan sub-agent melewati approval gate yang sama dengan yang dipakai main agent. Belum ada yang dibangun.

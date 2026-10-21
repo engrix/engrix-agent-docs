@@ -1,6 +1,6 @@
 # Engrix Agent — Architecture Portfolio
 
-**Engrix Agent** is a self-hosted, single-owner AI engineering agent that plans, executes, and verifies real work on a real machine: ~425 registered tools across 22 categories, layered memory that survives context compression, and four UI surfaces — from a full workspace to an always-on-top desktop copilot.
+**Engrix Agent** is a self-hosted, single-owner AI engineering agent that plans, executes, and verifies real work on a real machine: 459 registered tools across 23 categories, layered memory that survives context compression, and four UI surfaces — from a full workspace to an always-on-top desktop copilot.
 
 ## See it run
 
@@ -8,7 +8,7 @@ An unedited screen recording of one real task (research across three source type
 
 [![Engrix Agent — live task demo](assets/demo-preview.jpg)](https://engrix.github.io/engrix-agent-docs/)
 
-▶ **[Watch the demo video](https://engrix.github.io/engrix-agent-docs/)** — 8m34s, no audio, 1× speed. Recorded by pressing the in-app record button; that button is itself one of the agent's tools. (All numbers on these pages were captured by a live registry-parity checker run on **2026-10-16** against commit `b1a7a71`.)
+▶ **[Watch the demo video](https://engrix.github.io/engrix-agent-docs/)** — 8m34s, no audio, 1× speed. Recorded by pressing the in-app record button; that button is itself one of the agent's tools. (All numbers on these pages were captured by a live registry-parity checker run on **2026-10-21** against commit `9b906dae`.)
 
 ## What it looks like
 
@@ -25,7 +25,7 @@ The engine's repository at the same moment — the portfolio documents this syst
 ## What you are looking at
 
 - **[System overview](en/architecture/overview.md)** — why the engine is one process, and why its folders are separated by a one-way dependency contract
-- **[The tool system](en/architecture/tool-system.md)** — how one agent drives ~425 tools coherently (catalog → drawer → full schema, loaded once)
+- **[The tool system](en/architecture/tool-system.md)** — how one agent drives 459 tools coherently (catalog → drawer → full schema, loaded once)
 - **[Layered memory](en/architecture/memory.md)** — how compression keeps the core of a task instead of the noise
 - **[Interfaces](en/architecture/interfaces.md)** — four UI surfaces from one build, and everything the agent can reach
 - **[Design decisions](en/decisions/001-one-process-architecture.md)** — 8 ADRs, each opened by the question that forced it

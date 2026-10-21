@@ -8,7 +8,7 @@
 
 > *Bagaimana caranya agent bisa memakai ratusan tools tanpa kebingungan — dan pemilihannya tepat?*
 
-Di 425 tool, dua desain yang paling jelas sama-sama gagal:
+Di 459 tool, dua desain yang paling jelas sama-sama gagal:
 
 - **Semua schema selalu di prompt** — biaya token meledak, nama tool yang mirip saling melebur, kualitas pemilihan turun. Model tenggelam.
 - **Similarity search atas deskripsi tool** — layer retrieval *menebak* tool mana yang mungkin relevan. Tebakan salahnya susah di-debug, dan model tidak pernah lihat katalog lengkap, jadi ia bahkan tidak tahu harus minta apa.
@@ -17,8 +17,8 @@ Di 425 tool, dua desain yang paling jelas sama-sama gagal:
 
 **Taksonomi laci tiga lapis** yang dimodelkan dari perpustakaan: katalog lengkap selalu terdaftar (nama + jumlah + contoh trigger), tapi schema penuh dimuat hanya pas laci dibuka.
 
-1. **17 tool always-on** — planning, search, manajemen-diri; dibutuhkan tiap request.
-2. **22 kategori** — dibuka eksplisit oleh model lewat panggilan router rule-based. Membuka = memuat schema untuk sisa sesi. Shortcut satu keluarga membuka lima drawer kode sekaligus.
+1. **18 tool always-on** — planning, search, manajemen-diri; dibutuhkan tiap request.
+2. **23 kategori** — dibuka eksplisit oleh model lewat panggilan router rule-based. Membuka = memuat schema untuk sisa sesi. Shortcut satu keluarga membuka lima drawer kode sekaligus.
 3. **40 subdomain** — subset kategori yang besar, agar "hanya butuh devtools" tidak menyeret semua 37 tool browser.
 
 Pemilihan tetap presisi karena:

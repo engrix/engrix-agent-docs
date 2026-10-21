@@ -10,7 +10,7 @@ Codebase yang tumbuh melorot ke cycle: kode UI meng-import storage, storage meng
 
 ## Solusi
 
-Engine adalah satu paket dengan **11 layer satu arah**:
+Engine adalah satu paket dengan **13 layer bernama, satu arah**:
 
 ```
 config → storage → memory → knowledge → formatting → curation
@@ -19,7 +19,7 @@ config → storage → memory → knowledge → formatting → curation
 
 Layer tinggi boleh meng-import layer rendah; tidak pernah sebaliknya. Kode domain tidak pernah menulis plumbing SQL; orkestrasi tidak pernah membaca file konfigurasi langsung. Pemisahan adalah kontrak perawatan: satu perbaikan logis mendarat di satu layer.
 
-Aturannya diverifikasi, bukan hanya cita-cita: skrip audit dependensi memetakan setiap import lintas paket dan menandai pelanggaran — tool inilah yang menemukan hanya dua back-edge nyata (router meng-import dari loop agent) saat restrukturisasi, yang lalu dilarutkan dengan memindahkan router turun satu layer.
+Aturannya diverifikasi, bukan hanya cita-cita: audit dependensi dijalankan saat restrukturisasi, memetakan setiap import lintas paket dan menandai pelanggaran — audit itulah yang menemukan hanya dua back-edge nyata (router meng-import dari loop agent), yang lalu dilarutkan dengan memindahkan router turun satu layer. Audit tersebut adalah alat sekali pakai selama migrasi dan tidak ikut dikirim di repo, jadi hari ini layering adalah kontrak saat review, bukan gate yang menggagalkan build.
 
 ## Konsekuensi
 

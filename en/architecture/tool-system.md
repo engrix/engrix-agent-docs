@@ -1,12 +1,12 @@
 ﻿# The Tool System
 
-The defining feature of Engrix Agent: **425 registered tools across 22 categories**. The arithmetic closes exactly: `425 registered = 407 categorized + 17 always-on + 1 meta-tool` — `open_tool_category`, the drawer-opener itself, lives outside categories by design. The same checker reports two non-blocking naming lints (70 similar-name pairs — many intentional, e.g. `email_*` vs `gmail_*` are deliberately separate drawers — and one over-40-char name), reviewed rather than hidden. Measured via the registry parity checker, 2026-10-16, against repo commit `b1a7a71`.
+The defining feature of Engrix Agent: **459 registered tools across 23 categories**. The arithmetic closes exactly: `459 registered = 440 categorized + 18 always-on + 1 meta-tool` — `open_tool_category`, the drawer-opener itself, lives outside categories by design. The same checker reports two non-blocking naming lints (70 similar-name pairs — many intentional, e.g. `email_*` vs `gmail_*` are deliberately separate drawers — and one over-40-char name), reviewed rather than hidden. Measured via the registry parity checker, 2026-10-21, against repo commit `9b906dae`.
 
 ## The question
 
 > *How can an agent use hundreds of tools without getting confused — and pick the right one?*
 
-Naive approaches fail at this scale. Dumping 425 tool schemas into every request makes the prompt enormous and the model drowns: similar names blur together, selection quality drops, and token cost explodes. Hiding tools from the model entirely means it cannot even know what exists.
+Naive approaches fail at this scale. Dumping 459 tool schemas into every request makes the prompt enormous and the model drowns: similar names blur together, selection quality drops, and token cost explodes. Hiding tools from the model entirely means it cannot even know what exists.
 
 ## The solution: a three-layer drawer system
 
@@ -14,15 +14,15 @@ Tools are organized like a physical library — the catalog is always visible, b
 
 | Layer | What it is | Count |
 |---|---|---|
-| **Always-on** | Planning, search, and self-management tools every request needs | 17 |
-| **Categories** | The drawers — opened explicitly when a task needs them | 22 (+1 family shortcut) |
+| **Always-on** | Planning, search, and self-management tools every request needs | 18 |
+| **Categories** | The drawers — opened explicitly when a task needs them | 23 (+1 family shortcut) |
 | **Subdomains** | Drawers inside drawers — a subset of a big category | 40 |
 
 The per-request view stays flat no matter how deep the inventory goes:
 
 ```
-every request ──▶ [ always-on: 17 tools ]
-                  [ menu: 22 category names + counts + triggers ]   ◀── small, static
+every request ──▶ [ always-on: 18 tools ]
+                  [ menu: 23 category names + counts + triggers ]   ◀── small, static
                           │
         model picks by intent, one call:  open_tool_category("github")
                           │

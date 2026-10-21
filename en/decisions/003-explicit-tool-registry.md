@@ -17,7 +17,7 @@ Registration is **explicit at four fixed points**, and a **live parity checker**
 3. The router knows the category.
 4. The package `__init__` imports the module for side-effect registration.
 
-The parity checker compares all four layers against the live registry at runtime and reports: ghosts (defined but never registered), missing tools, uncategorized strays, and duplicates. The current live run: **ghost 0, missing 0, duplicates 0** across 425 tools.
+The parity checker compares all four layers against the live registry at runtime and reports: ghosts (defined but never registered), missing tools, uncategorized strays, and duplicates. The current live run: **ghost 0, missing 0, duplicates 0** across 459 tools.
 
 ## Consequences
 

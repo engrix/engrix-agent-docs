@@ -8,7 +8,7 @@
 
 > *How can an agent use hundreds of tools without getting confused — and select the right one?*
 
-At 425 tools, the two obvious designs both fail:
+At 459 tools, the two obvious designs both fail:
 
 - **All schemas always in the prompt** — token cost explodes, similar tool names blur, selection quality degrades. The model drowns.
 - **Similarity search over tool descriptions** — a retrieval layer *guesses* which tools might be relevant. Guesses are wrong in ways that are hard to debug, and the model never sees the full catalog, so it cannot even know what to ask for.
@@ -17,8 +17,8 @@ At 425 tools, the two obvious designs both fail:
 
 A **three-layer drawer taxonomy** modeled on a library: the full catalog is always listed (names + counts + trigger examples), but full schemas load only when a drawer is opened.
 
-1. **17 always-on tools** — planning, search, self-management; needed by every request.
-2. **22 categories** — opened explicitly by the model via a rule-based router call. Opening loads schemas for the rest of the session. A family shortcut opens five code-drawers at once.
+1. **18 always-on tools** — planning, search, self-management; needed by every request.
+2. **23 categories** — opened explicitly by the model via a rule-based router call. Opening loads schemas for the rest of the session. A family shortcut opens five code-drawers at once.
 3. **40 subdomains** — subsets of oversized categories, so "I only need devtools" does not drag in all 37 browser tools.
 
 Selection stays precise because:
