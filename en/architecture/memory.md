@@ -1,4 +1,4 @@
-﻿# Layered Memory
+# Layered Memory
 
 ## The origin problem
 
@@ -18,6 +18,7 @@ Memory is a domain layer (`memory/`) with specialized stores, each solving one k
 | **History** | Message history with tool-block sanitization and **compaction built in** — long tool outputs are compressed, not the meaning |
 | **Task position** | A `TASK_CONTEXT` block injected at every model turn: what task is active, what step it is on, what was decided — the agent always knows what it is doing |
 | **Task summaries** | Per-task grade and summary; a room's history grows *smaller*, not bigger, as work progresses |
+| **Verification state** | What was actually verified this task, and whether the evidence is still fresh — a claim cannot silently outlive the check behind it |
 | **Episode index** | Cross-session digests formatted for the prompt — past experiences are available on demand, not dumped by default |
 | **Cross-room topics** | Pointers only — the index lists what other conversations covered; content is retrieved on demand from the vector store |
 
@@ -39,10 +40,22 @@ flowchart TD
     PROMPT --> OUT["model answers"]
     OUT -->|facts worth keeping| FACT["facts store (mechanical extraction only)"]
     OUT -->|task closes| SUM["task summary + grade"]
+    OUT -->|tool ran| VER["verification state"]
+    VER -.->|"stale?"| TASK
     SUM -.->|"next session"| EP
 ```
 
 The design principle: **the deeper the chat, the more it compresses — but the core stays.** An agent in hour four of a session still has the task's skeleton in front of it every single turn.
+
+## Compaction is read-time, not destructive
+
+This distinction is the one that makes the design safe: the database keeps the full tool output, and `memory/history.py` applies caps when *reading* history for the model. The stored record is never rewritten to the compressed form. That means the UI can still show the full output the agent actually received, while the model sees a pointer-style summary — the same session viewed at two different fidelities, both truthful.
+
+The window is deliberately bounded: a hard cap on how many tool-bearing turns stay fully intact, and a message limit from `config.conversation.max_messages`. Older turns collapse to their skeleton rather than disappearing entirely.
+
+## Verification state, not just memory
+
+Most memory designs stop at "what was said". This one also stores "what was checked", because an agent that remembers a conclusion but not the evidence behind it will happily repeat a stale conclusion. `memory/verification.py` classifies tool calls by whether they actually verify something, records the event, and can report whether a task's verification is fresh. A plan that was closed without verification is labelled as such instead of being presented as tested.
 
 ## Ranking and relevance
 
@@ -58,4 +71,4 @@ The injected context is not folklore; it is inspectable. Each model turn receive
 
 The infrastructure layer (`storage/`) holds a single SQLite connection (WAL mode, foreign keys, busy timeout, guarded write-lock cursor) with schema versioning and migrations. Domain code never touches raw SQL wiring — one layer owns the mechanics, one owns the meaning. Concurrency is solved by staying single-writer: WAL lets readers proceed while one write lock is held, and the deployment rule is one engine process per database — parallel instances share a server-mode Qdrant, never the same SQLite file. Semantic recall rides a separate vector store (Qdrant) that can run embedded for a single instance or in server mode for parallel instances.
 
-Next: [Interfaces](interfaces.md) — four ways to talk to the same engine.
+Next: [Sub-agents](subagents.md) — what happens when the agent needs more than one worker.

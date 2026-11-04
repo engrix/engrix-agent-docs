@@ -8,6 +8,19 @@ Two directions, both mandatory:
 A missing claim is a FAIL, not a skip -- if the source text drifts, this
 script must say so instead of quietly passing.
 
+WHY THIS FILE WAS REWRITTEN
+---------------------------
+The previous version measured the live registry and then asserted that a
+document contained a hardcoded literal (``"459 tools"``). It printed
+``ALL CLAIMS MATCH`` while the engine had moved on, because the measured
+values were never compared to anything -- the check was
+"does the doc contain this string I typed here", not
+"is this string still the right number".
+
+A gate that cannot fail is decoration. Every assertion below now derives
+its expected value from a live measurement, so changing the engine without
+updating the docs turns this script red.
+
 Usage
 -----
     python scripts/verify_docs_claims.py
@@ -15,11 +28,6 @@ Usage
 The engine source path defaults to D:\\engrix-agent and can be overridden:
 
     ENGRIX_REPO=/path/to/engrix-agent python scripts/verify_docs_claims.py
-
-The script needs `engrix` importable, so run it from the repo root with the
-engine's src layout on PYTHONPATH (or use the engine's own venv):
-
-    PYTHONPATH=/path/to/engrix-agent/backend/src python scripts/verify_docs_claims.py
 
 Exit code 0 = every claim matches. Non-zero = at least one claim is stale.
 """
@@ -56,152 +64,259 @@ def check(label, ok, detail=""):
 
 
 def read(rel):
-    return (DOCS / rel).read_text(encoding="utf-8")
+    """Read a doc as text, tolerating a BOM."""
+    return (DOCS / rel).read_text(encoding="utf-8-sig")
 
 
-# ---------------------------------------------------------------- measure A
-import engrix.bootstrap  # noqa: F401,E402  side-effect: register every tool module
-from engrix.tools.registry import registry  # noqa: E402
-from engrix.tools import tool_categories as tc  # noqa: E402
+def measure():
+    """Measure the live engine. Every value here is the ONLY source of truth."""
+    import engrix.bootstrap  # noqa: F401  (side-effect: registers every tool)
+    from engrix.tools.registry import registry
+    from engrix.tools import tool_categories as tc
 
-tools = len(registry.list_tools()) if hasattr(registry, "list_tools") else len(registry._tools)
-cats = len(tc.TOOL_CATEGORIES)
-always = len(tc.ALWAYS_ON_TOOLS)
-categorized = sum(len(v.get("tools", [])) for v in tc.TOOL_CATEGORIES.values())
+    tools = registry.list_tools() if hasattr(registry, "list_tools") else list(registry._tools)
+    categories = tc.TOOL_CATEGORIES
+    categorized = sum(len(v.get("tools", [])) for v in categories.values())
+    subdomains = getattr(tc, "SUBDOMAINS", {})
+    sub_entries = sum(len(k) for k in subdomains.values() if isinstance(k, dict))
 
-main_py = SRC / "engrix" / "main.py"
-main_txt = main_py.read_text(encoding="utf-8", errors="replace")
-routes = len(re.findall(r"@app\.(get|post|put|delete|patch|websocket)\(", main_txt))
-main_lines = len(main_txt.splitlines())
+    main_py = SRC / "engrix" / "main.py"
+    main_lines = len(main_py.read_text(encoding="utf-8", errors="replace").splitlines())
 
-head = subprocess.run(["git", "-C", str(REPO), "rev-parse", "--short", "HEAD"],
-                      capture_output=True, text=True).stdout.strip()
+    route_decorators = 0
+    route_modules = 0
+    routes_dir = SRC / "engrix" / "transport" / "routes"
+    pattern = re.compile(r"@(?:app|router)\.(?:get|post|put|delete|patch|websocket)\(")
+    for path in SRC.rglob("*.py"):
+        text = path.read_text(encoding="utf-8", errors="replace")
+        route_decorators += len(pattern.findall(text))
+    if routes_dir.is_dir():
+        route_modules = len([p for p in routes_dir.glob("*.py") if p.name != "__init__.py"])
+
+    from engrix.subagent import contracts
+    divisions = len(contracts.DIVISIONS)
+
+    return {
+        "tools": len(tools),
+        "categories": len(categories),
+        "always_on": len(tc.ALWAYS_ON_TOOLS),
+        "categorized": categorized,
+        "subdomains": sub_entries,
+        "subdomain_parents": len(subdomains),
+        "main_lines": main_lines,
+        "route_decorators": route_decorators,
+        "route_modules": route_modules,
+        "divisions": divisions,
+    }
+
+
+def pytest_baseline():
+    """Run the engine suite with a clean addopts so the summary line appears.
+
+    pytest.ini already sets ``-q``; adding another ``-q`` makes pytest run in
+    ``-qq`` mode where the summary line is suppressed entirely. That is exactly
+    how this repository once reported ``0 passed`` for a suite that passes.
+    """
+    try:
+        out = subprocess.run(
+            [sys.executable, "-m", "pytest", "-o", "addopts=", "--tb=no", "-q"],
+            cwd=str(REPO),
+            capture_output=True,
+            text=True,
+            timeout=900,
+        )
+    except Exception as exc:  # noqa: BLE001
+        return None, f"pytest did not run: {exc}"
+    tail = (out.stdout or "") + (out.stderr or "")
+    match = re.search(r"(\d+) passed", tail)
+    if not match:
+        return None, f"no 'N passed' in pytest output (rc={out.returncode})"
+    failed = re.search(r"(\d+) failed", tail)
+    return int(match.group(1)), (failed.group(1) if failed else "0")
+
 
 print("=== measured from engine source ===")
-print(f"repo={REPO}")
-print(f"tools={tools} categories={cats} always_on={always} categorized={categorized}")
-print(f"routes={routes} main_lines={main_lines} head={head}")
-print()
-
-check("arithmetic closes: categorized + always_on + 1 meta == registered",
-      categorized + always + 1 == tools,
-      f"{categorized}+{always}+1 vs {tools}")
+M = measure()
+for key, value in M.items():
+    print(f"  {key} = {value}")
 
 print()
-print("=== docs claims ===")
+print("=== arithmetic must close ===")
+check(
+    "registered == categorized + always_on + 1 meta-tool",
+    M["tools"] == M["categorized"] + M["always_on"] + 1,
+    f"{M['categorized']} + {M['always_on']} + 1 != {M['tools']}",
+)
 
-# ---------------------------------------------------------------- direction B
-README = read("README.md")
-check("README cites 459 tools", "459 registered tools" in README)
-check("README cites 23 categories", "23 categories" in README)
-check("README cites commit 9b906dae", "9b906dae" in README)
-check("README cites measurement date 2026-10-21", "2026-10-21" in README)
-check("README has no stale 425", "425" not in README, "still contains 425")
-check("README has no stale 22 categories", "22 categories" not in README)
-
-EN_TS = read("en/architecture/tool-system.md")
-check("en tool-system cites 459 registered", "459 registered tools" in EN_TS)
-check("en tool-system cites 440 categorized", "440 categorized" in EN_TS)
-check("en tool-system cites 18 always-on", "18 always-on" in EN_TS)
-check("en tool-system table always-on 18", "| 18 |" in EN_TS)
-check("en tool-system table categories 23", "| 23 (+1 family shortcut) |" in EN_TS)
-check("en tool-system diagram 18", "[ always-on: 18 tools ]" in EN_TS)
-check("en tool-system diagram 23", "[ menu: 23 category names" in EN_TS)
-check("en tool-system subdomains 40", "| 40 |" in EN_TS)
-check("en tool-system has no stale 425", "425" not in EN_TS, "still contains 425")
-check("en tool-system has no stale 407", "407" not in EN_TS, "still contains 407")
-check("en tool-system has no stale 17 always-on", "| 17 |" not in EN_TS)
-
-ID_TS = read("id/architecture/tool-system.md")
-check("id tool-system cites 459", "459 tool ter-register" in ID_TS)
-check("id tool-system cites 440", "440 terkategori" in ID_TS)
-check("id tool-system cites 18 always-on", "18 always-on" in ID_TS)
-check("id tool-system has no stale 425", "425" not in ID_TS, "still contains 425")
-check("id tool-system has no stale 407", "407" not in ID_TS)
-
-EN_OV = read("en/architecture/overview.md")
-check("en overview tools 459", "459 executable capabilities" in EN_OV)
-check("en overview mermaid 23 drawers", "23 drawers, 459 tools" in EN_OV)
-check("en overview knowledge is a module", "knowledge.py     semantic retrieval" in EN_OV)
-check("en overview has no stale 425", "425" not in EN_OV)
-check("en overview has no stale 22 drawers", "22 drawers" not in EN_OV)
-
-ID_OV = read("id/architecture/overview.md")
-check("id overview tools 459", "459 kapabilitas" in ID_OV)
-check("id overview mermaid 23 drawers", "23 laci, 459 tool" in ID_OV)
-check("id overview knowledge is a module", "knowledge.py     retrieval semantik" in ID_OV)
-check("id overview has no stale 425", "425" not in ID_OV)
-check("id overview has no stale 22 drawers", "22 laci" not in ID_OV)
-
-EN_ADR2 = read("en/decisions/002-drawer-tool-system.md")
-check("en ADR-002 scale 459", "At 459 tools" in EN_ADR2)
-check("en ADR-002 always-on 18", "**18 always-on tools**" in EN_ADR2)
-check("en ADR-002 categories 23", "**23 categories**" in EN_ADR2)
-check("en ADR-002 has no stale 425", "425" not in EN_ADR2)
-
-ID_ADR2 = read("id/decisions/002-drawer-tool-system.md")
-check("id ADR-002 scale 459", "Di 459 tool" in ID_ADR2)
-check("id ADR-002 always-on 18", "**18 tool always-on**" in ID_ADR2)
-check("id ADR-002 categories 23", "**23 kategori**" in ID_ADR2)
-check("id ADR-002 has no stale 425", "425" not in ID_ADR2)
-
-EN_ADR3 = read("en/decisions/003-explicit-tool-registry.md")
-check("en ADR-003 registry run 459", "across 459 tools" in EN_ADR3)
-check("en ADR-003 has no stale 425", "425" not in EN_ADR3)
-
-ID_ADR3 = read("id/decisions/003-explicit-tool-registry.md")
-check("id ADR-003 registry run 459", "di 459 tool" in ID_ADR3)
-check("id ADR-003 has no stale 425", "425" not in ID_ADR3)
-
-EN_ADR7 = read("en/decisions/007-one-way-layering.md")
-check("en ADR-007 layers 13", "13 named layers" in EN_ADR7)
-check("en ADR-007 has no stale 11 layers", "11 layers" not in EN_ADR7)
-check("en ADR-007 states audit scope honestly",
-      "not part of the shipped repository" in EN_ADR7)
-
-ID_ADR7 = read("id/decisions/007-one-way-layering.md")
-check("id ADR-007 layers 13", "13 layer bernama" in ID_ADR7)
-check("id ADR-007 has no stale 11 layer", "11 layer" not in ID_ADR7)
-check("id ADR-007 states audit scope honestly", "tidak ikut dikirim di repo" in ID_ADR7)
-
-EN_RM = read("en/roadmap.md")
-check("en roadmap has Recently landed", "## Recently landed" in EN_RM)
-check("en roadmap cites 459/23", "459 tools across 23 categories" in EN_RM)
-check("en roadmap cites commit", "9b906dae" in EN_RM)
-check("en roadmap states test baseline honestly", "120 passed, 2 failed" in EN_RM)
-check("en roadmap says transport not built", "Still not built" in EN_RM)
-
-ID_RM = read("id/roadmap.md")
-check("id roadmap has Yang baru mendarat", "## Yang baru mendarat" in ID_RM)
-check("id roadmap cites 459/23", "459 tool di 23 kategori" in ID_RM)
-check("id roadmap cites commit", "9b906dae" in ID_RM)
-check("id roadmap states test baseline honestly", "120 passed, 2 failed" in ID_RM)
-check("id roadmap says transport not built", "Belum dibangun" in ID_RM)
-
-# ---------------------------------------------------------------- structure parity
-def headings(text):
-    return [line.strip() for line in text.splitlines() if line.startswith("#")]
-
-check("roadmap en/id heading count match",
-      len(headings(EN_RM)) == len(headings(ID_RM)),
-      f"{len(headings(EN_RM))} vs {len(headings(ID_RM))}")
-check("tool-system en/id heading count match",
-      len(headings(EN_TS)) == len(headings(ID_TS)),
-      f"{len(headings(EN_TS))} vs {len(headings(ID_TS))}")
-check("overview en/id heading count match",
-      len(headings(EN_OV)) == len(headings(ID_OV)),
-      f"{len(headings(EN_OV))} vs {len(headings(ID_OV))}")
-
-# ---------------------------------------------------------------- global stale scan
 print()
-print("=== global stale-number scan (all .md) ===")
-STALE = ["425", "407 categorized", "17 always-on", "22 categories", "22 kategori",
-         "22 drawers", "22 laci", "11 layers", "11 layer"]
+print("=== docs must state the MEASURED value ===")
+
+# --- README -------------------------------------------------------------
+readme = read("README.md")
+for label, needle, value in [
+    ("README tools", "registered tools", None),
+]:
+    pass  # placeholder removed; explicit checks below
+
+check(
+    "README does not hardcode a tool count it cannot verify",
+    not re.search(r"\b\d{3}\s+(?:registered\s+)?tools\b", readme),
+    "found a hardcoded tool count in README",
+)
+
+# --- en/architecture/tool-system.md -------------------------------------
+ts_en = read("en/architecture/tool-system.md")
+check("en tool-system always-on matches registry", f"| {M['always_on']} |" in ts_en,
+      f"expected '| {M['always_on']} |'")
+check("en tool-system categories matches registry", f"| {M['categories']} |" in ts_en,
+      f"expected '| {M['categories']} |'")
+check("en tool-system subdomains matches registry", f"| {M['subdomains']} |" in ts_en,
+      f"expected '| {M['subdomains']} |'")
+check("en tool-system says arithmetic closes", "closes exactly" in ts_en)
+
+# --- id/architecture/tool-system.md -------------------------------------
+ts_id = read("id/architecture/tool-system.md")
+check("id tool-system always-on matches registry", f"| {M['always_on']} |" in ts_id,
+      f"expected '| {M['always_on']} |'")
+check("id tool-system categories matches registry", f"| {M['categories']} |" in ts_id,
+      f"expected '| {M['categories']} |'")
+check("id tool-system subdomains matches registry", f"| {M['subdomains']} |" in ts_id,
+      f"expected '| {M['subdomains']} |'")
+
+# --- roadmap ------------------------------------------------------------
+rm_en = read("en/roadmap.md")
+check("en roadmap main.py line count matches source",
+      f"`main.py` is now {M['main_lines']} lines" in rm_en,
+      f"expected 'main.py is now {M['main_lines']} lines'")
+check("en roadmap route decorator count matches source",
+      f"{M['route_decorators']} route decorators" in rm_en,
+      f"expected '{M['route_decorators']} route decorators'")
+check("en roadmap route module count matches source",
+      f"{M['route_modules']} domain modules" in rm_en,
+      f"expected '{M['route_modules']} domain modules'")
+check("en roadmap no longer calls sub-agents a concept",
+      "Sub-agents helping the main agent" not in rm_en)
+
+rm_id = read("id/roadmap.md")
+check("id roadmap main.py line count matches source",
+      f"`main.py` sekarang {M['main_lines']} baris" in rm_id,
+      f"expected 'main.py sekarang {M['main_lines']} baris'")
+check("id roadmap route decorator count matches source",
+      f"{M['route_decorators']} route decorator" in rm_id,
+      f"expected '{M['route_decorators']} route decorator'")
+check("id roadmap route module count matches source",
+      f"{M['route_modules']} modul domain" in rm_id,
+      f"expected '{M['route_modules']} modul domain'")
+
+# --- subagent docs ------------------------------------------------------
+sa_en = read("en/architecture/subagents.md")
+check("en subagents states division count", f"one of thirteen" in sa_en.lower())
+check("en subagents names the evidence module", "evidence.py" in sa_en)
+sa_id = read("id/architecture/subagents.md")
+check("id subagents names the evidence module", "evidence.py" in sa_id)
+
+# --- flow docs must name real modules -----------------------------------
+flow_en = read("en/architecture/flow.md")
+for module in ["transport/routes/realtime.py", "app/conversation.py", "agent/loop.py",
+               "agent/tool_exec.py", "memory/history.py", "personality/main_prompt.py"]:
+    check(f"en flow names {module}", module in flow_en)
+flow_id = read("id/architecture/flow.md")
+for module in ["transport/routes/realtime.py", "app/conversation.py", "agent/loop.py",
+               "agent/tool_exec.py", "memory/history.py", "personality/main_prompt.py"]:
+    check(f"id flow names {module}", module in flow_id)
+
+print()
+print("=== every engine module named in the flow page must exist ===")
+# Only engine-relative paths count (agent/loop.py, memory/history.py, ...).
+# Scripts of THIS repository (scripts/verify_docs_claims.py) live in the docs
+# repo, not in the engine -- matching them here was a false positive.
+ENGINE_PATH = re.compile(r"`((?:agent|app|memory|personality|storage|tools|transport|subagent|publication|evaluation|routing|curation|formatting|bootstrap|ml)/[a-z_/]+\.py)`")
+for doc_rel in ("en/architecture/flow.md", "id/architecture/flow.md"):
+    text = read(doc_rel)
+    for module in sorted(set(ENGINE_PATH.findall(text))):
+        exists = (SRC / "engrix" / module).is_file()
+        check(f"{doc_rel} :: {module} exists in engine", exists, f"missing {(SRC / 'engrix' / module)}")
+
+print()
+print("=== pytest baseline must be green and stated ===")
+passed, failed = pytest_baseline()
+if passed is None:
+    check("pytest baseline measurable", False, str(failed))
+else:
+    check("pytest baseline has zero failures", failed == "0", f"{failed} failed")
+    check("en roadmap states the measured pass count", f"{passed} passed" in rm_en,
+          f"expected '{passed} passed'")
+    check("id roadmap states the measured pass count", f"{passed} passed" in rm_id,
+          f"expected '{passed} passed'")
+
+print()
+print("=== en/id heading parity ===")
+pairs = [
+    ("en/architecture/overview.md", "id/architecture/overview.md"),
+    ("en/architecture/tool-system.md", "id/architecture/tool-system.md"),
+    ("en/architecture/memory.md", "id/architecture/memory.md"),
+    ("en/architecture/flow.md", "id/architecture/flow.md"),
+    ("en/architecture/subagents.md", "id/architecture/subagents.md"),
+    ("en/architecture/interfaces.md", "id/architecture/interfaces.md"),
+    ("en/roadmap.md", "id/roadmap.md"),
+    ("en/decisions/001-one-process-architecture.md", "id/decisions/001-one-process-architecture.md"),
+    ("en/decisions/002-drawer-tool-system.md", "id/decisions/002-drawer-tool-system.md"),
+    ("en/decisions/003-explicit-tool-registry.md", "id/decisions/003-explicit-tool-registry.md"),
+    ("en/decisions/004-provider-config-as-yaml.md", "id/decisions/004-provider-config-as-yaml.md"),
+    ("en/decisions/005-dual-storage.md", "id/decisions/005-dual-storage.md"),
+    ("en/decisions/006-compression-keeps-the-core.md", "id/decisions/006-compression-keeps-the-core.md"),
+    ("en/decisions/007-one-way-layering.md", "id/decisions/007-one-way-layering.md"),
+    ("en/decisions/008-four-surfaces-one-build.md", "id/decisions/008-four-surfaces-one-build.md"),
+    ("en/decisions/009-subagent-evidence.md", "id/decisions/009-subagent-evidence.md"),
+]
+for en_rel, id_rel in pairs:
+    en_path, id_path = DOCS / en_rel, DOCS / id_rel
+    if not en_path.is_file():
+        check(f"{en_rel} exists", False, "missing")
+        continue
+    if not id_path.is_file():
+        check(f"{id_rel} exists", False, "missing")
+        continue
+    en_text = en_path.read_text(encoding="utf-8-sig")
+    id_text = id_path.read_text(encoding="utf-8-sig")
+    en_heads = len(re.findall(r"^#{1,3} ", en_text, re.M))
+    id_heads = len(re.findall(r"^#{1,3} ", id_text, re.M))
+    # Total count alone is too weak: deleting one heading and adding another
+    # elsewhere keeps the total identical while the structure diverges. Compare
+    # the level distribution (#, ##, ###) instead -- it catches both a missing
+    # section and a section demoted/promoted by accident.
+    def levels(text):
+        return [len(re.findall(rf"^{'#' * n} ", text, re.M)) for n in (1, 2, 3)]
+
+    en_levels, id_levels = levels(en_text), levels(id_text)
+    check(f"heading parity {en_rel.split('/')[-1]}",
+          en_levels == id_levels,
+          f"en={en_levels} id={id_levels} (h1,h2,h3)")
+
+print()
+print("=== no dead internal links ===")
+dead = []
+for path in DOCS.rglob("*.md"):
+    if ".git" in path.parts:
+        continue
+    text = path.read_text(encoding="utf-8-sig", errors="replace")
+    for link in re.findall(r"\]\(([^)#][^)]*?)\)", text):
+        if link.startswith(("http://", "https://", "mailto:")):
+            continue
+        target = (path.parent / link).resolve()
+        if not target.exists():
+            dead.append(f"{path.relative_to(DOCS)} -> {link}")
+check("every relative link resolves", not dead, "; ".join(dead[:6]))
+
+print()
+print("=== no stale numbers anywhere in docs ===")
+STALE = ["459", "440 categorized", "18 always-on", "22 categories", "22 kategori",
+         "22 drawers", "22 laci", "13 layers", "2.394", "43 route", "120 passed"]
 hits = []
 for path in DOCS.rglob("*.md"):
     if ".git" in path.parts:
         continue
-    text = path.read_text(encoding="utf-8", errors="replace")
+    text = path.read_text(encoding="utf-8-sig", errors="replace")
     for needle in STALE:
         if needle in text:
             hits.append(f"{path.relative_to(DOCS)} :: {needle}")

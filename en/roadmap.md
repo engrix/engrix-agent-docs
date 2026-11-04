@@ -1,35 +1,37 @@
-﻿# Roadmap — what is real, what is next
+# Roadmap — what is real, what is next
 
 Nothing on this page is dressed up. Each item states what exists today and what does not.
 
 | Item | Status | Where it stands |
 |---|---|---|
 | Core agent loop, tools, memory | **Shipped** | Daily production use |
-| 4 UI surfaces incl. desktop copilot | **Partial (in debugging)** | All four surfaces ship; the desktop copilot is still being debugged day-to-day. Next: two clear modes — a quick **assistant** mode (no planning scaffolding, just answers) and the full **workspace** mode |
+| Sub-agents with division-scoped tool pools | **Shipped** | Thirteen divisions, admission control, mechanical evidence per run, resume on a finished child. Read-only divisions fenced at the host |
+| 4 UI surfaces incl. desktop copilot | **Shipped** | All four surfaces render from one build; the desktop shell is a thin Electron wrapper (always-on-top, global hotkey, tray, capture exclusion) |
 | Screen recording (button + tool) | **Shipped** | In-app button; used to capture this repo's demo |
 | Portable pack + backup repos | **Shipped** | `engrix.exe` launcher; GitHub backups |
-| Sub-agents helping the main agent | **Concept** | Not started — open design questions below |
+| Transport split (`main.py` → per-domain routers) | **Shipped** | `main.py` is app assembly only (509 lines, one catch-all route); the other 50 route decorators live in 13 modules under `transport/routes/` |
+| Contract gates on tools and routes | **Shipped** | Registry parity, category/subdomain contracts with a self-test, route snapshot, prompt-mirror sync, docs-claim gate |
+| Capture engine (evaluation) | **Partial** | `evaluation/capture.py` records what the agent actually saw and did; analysis on top of that capture is not built |
 | ML to reduce information gaps | **Partial** | `ml/` online learning exists; the gap-reduction goal below is unfinished |
 | Deeper desktop overlay over other apps | **Partial** | Always-on-top copilot ships; richer interaction with host apps does not |
 | COM Office as tools (Word/Excel/PPT) | **Not started** | File-level Excel/CSV/PDF export ships today; controlling live Office apps is separate |
 
 ## Recently landed
 
-Measured on 2026-10-21 against commit `9b906dae`:
+Every number below is measured from the live tree by `scripts/verify_docs_claims.py`, which fails the document when it drifts.
 
 | Change | What it actually means |
 |---|---|
-| Registry grew to **459 tools across 23 categories** | The arithmetic still closes exactly: `459 = 440 categorized + 18 always-on + 1 meta-tool` |
-| Contract gate wired in (`check_contracts.py`) | Category literals, subdomains and always-on now have a two-way parity check that exits non-zero on drift, plus a self-test proving the gate can fail |
-| Two dead HTTP routes removed | `/api/kategori/scrape` and `/api/kategori_cepat` had no frontend caller (2 `fetch()` calls exist in the whole frontend; neither hits them). The capability behind them — `run_kategori_agent` — stays |
-| Backend test baseline is now runnable | `pytest.ini` pins `testpaths = tests` and `pythonpath = backend/src`. Baseline: **120 passed, 2 failed, 13 skipped, 9 xfailed**. Both failures are subprocess tests that do not inherit `PYTHONPATH` (`ModuleNotFoundError: No module named 'engrix'`) — an environment gap, not a registry defect; the gate itself passes when run with the path set |
-| `main.py` is 2,394 lines / 43 routes | The two removed routes account for the drop from 2,604. No router has been extracted yet |
+| The engine stopped being one giant entry file | `main.py` is now 509 lines holding app assembly and a single catch-all route; the HTTP surface is 50 route decorators spread across 13 domain modules in `transport/routes/` |
+| Sub-agents became a real subsystem | `subagent/` holds contracts, evidence, report shape, artifacts, resume, watchdog, and worktrees — the "concept, not started" line from the previous roadmap is gone because the work landed |
+| Backend test baseline is green | `349 passed, 13 skipped, 9 xfailed` with no failures. The two subprocess failures that used to be excused as an environment gap are fixed, not documented |
+| The claim gates became real gates | A gate that reports PASS while measuring nothing is worse than no gate: the pytest section used to print `0 passed` because a duplicate `-q` suppressed pytest's summary line, and the event-sync section used to scan zero files because its path pattern never matched. Both now fail loudly on an empty scan |
 
-**Still not built:** the transport split (`main.py` into thin transport + per-feature handlers) and the single feature manifest. Both are designed, neither is implemented — this page will say so until they are.
+**Still not built:** analysis on top of the capture engine, richer desktop overlay interaction, and COM Office control. Each is stated here until it ships.
 
 ## The honest open questions
 
-**Sub-agents — can their output even be trusted?** *What if a sub-agent edits code while the main loop is mid-task — who arbitrates conflicting writes?* The working answer: start read-only (research, verification, drafting), earn write access per trust tier, and make every sub-agent write land through the same approval gates the main agent uses. Nothing is built yet.
+**Sub-agents — can their output even be trusted?** This was an open question; it now has a working answer, and the answer is mechanical rather than procedural. Every child run carries evidence counters, a verdict derived from them, secret redaction, and injection filtering, and a child that reports success with zero verification is labelled unverified instead of believed. What is *still* open is the arbitration question below the surface: two children editing the same file. Worktrees isolate them, but a merge policy for conflicting edits is a human decision, not something the engine should guess.
 
 **ML — what if frequency-based recommendations create a feedback loop?** The goal is not a "smarter" agent but a better-*informed* one: which tools actually mattered this week, which mistakes keep repeating across sessions. *How it could fail:* if the model keeps being fed "what you already use", it never discovers the better path — so any ranking signal must include outcome quality (did the task succeed), not just usage counts.
 

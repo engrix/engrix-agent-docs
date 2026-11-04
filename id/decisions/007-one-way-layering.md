@@ -1,28 +1,43 @@
-﻿# ADR-007 — Layering Satu Arah yang Diverifikasi Live
+# ADR-007 — Layering Satu Arah
 
 **Status:** Diterima
 
-> *Pertanyaan yang dijawab ADR ini:* **Bagaimana cara mencegah codebase diam-diam tumbuh circular import?**
+> *Pertanyaan yang dijawab ADR ini:* **Bagaimana menghentikan codebase diam-diam menumbuhkan import melingkar?**
 
 ## Masalah
 
-Codebase yang tumbuh melorot ke cycle: kode UI meng-import storage, storage meng-import loop agent, semuanya meng-import semuanya. Tiap fitur baru jadi lebih mahal dari yang sebelumnya, dan "kemarin masih jalan" jadi rutinitas. Pemicu di sini adalah reorganisasi struktural itu sendiri — pertanyaannya bukan hanya *file pindah ke mana*, tapi *bagaimana membuat struktur itu bisa ditegakkan*.
+Codebase yang sudah tumbuh melenceng ke siklus: kode UI mengimpor storage, storage mengimpor loop agent, semuanya mengimpor segalanya. Setiap fitur baru lalu lebih mahal dari sebelumnya, dan kerusakan "kemarin jalan" jadi rutinitas. Peristiwa pemicunya adalah reorganisasi struktural itu sendiri — pertanyaannya bukan cuma *di mana file ditaruh*, tapi *bagaimana strukturnya bisa ditegakkan*.
 
 ## Solusi
 
-Engine adalah satu paket dengan **13 layer bernama, satu arah**:
+Engine adalah paket dengan **satu arah dependensi**:
 
 ```
-config → storage → memory → knowledge → formatting → curation
-       → routing → personality → tools → ml → agent → bootstrap → main
+config → paths → storage → memory → knowledge → formatting → curation
+       → routing → personality → tools → ml → agent → subagent
+       → publication → evaluation → transport → app → bootstrap → main
 ```
 
-Layer tinggi boleh meng-import layer rendah; tidak pernah sebaliknya. Kode domain tidak pernah menulis plumbing SQL; orkestrasi tidak pernah membaca file konfigurasi langsung. Pemisahan adalah kontrak perawatan: satu perbaikan logis mendarat di satu layer.
+Layer atas boleh mengimpor layer bawah; tidak pernah sebaliknya. Kode domain tidak pernah menulis plumbing SQL; orkestrasi tidak pernah membaca file config langsung. Pemisahan itu adalah kontrak perawatan: satu perbaikan logis mendarat di satu layer.
 
-Aturannya diverifikasi, bukan hanya cita-cita: audit dependensi dijalankan saat restrukturisasi, memetakan setiap import lintas paket dan menandai pelanggaran — audit itulah yang menemukan hanya dua back-edge nyata (router meng-import dari loop agent), yang lalu dilarutkan dengan memindahkan router turun satu layer. Audit tersebut adalah alat sekali pakai selama migrasi dan tidak ikut dikirim di repo, jadi hari ini layering adalah kontrak saat review, bukan gate yang menggagalkan build.
+## Apa yang benar-benar ditegakkan, dan apa yang tidak
+
+Ini bagian yang layak dinyatakan presisi, karena "kami punya aturan layering" itu gampang diucapkan dan sulit dimaksudkan.
+
+**Ditegakkan oleh gate:**
+
+- Modul route tidak boleh mengimpor `engrix.main`. `scripts/route_module_check.py` menggagalkan build saat dilanggar, dan juga memverifikasi bahwa aritmatika path `parents[N]` tiap modul route masih menunjuk akar repo yang sebenarnya — kelas bug yang tidak menghasilkan exception, tidak ada test merah, dan fitur yang diam-diam beroperasi di folder yang salah.
+- Nama tingkat-modul yang direferensikan tapi tidak pernah di-bound menggagalkan `scripts/module_binding_check.py`. Gate itu ada karena sebuah statement `import` pernah mendarat di dalam docstring: ia jadi teks lembam, `import engrix.main` tetap sukses, semua gate lolos, dan jalur chat melempar `NameError` di turn berikutnya.
+- Wiring tool dan kategori dicek terhadap registry hidup (`check_registry_sync.py`, `check_contracts.py`).
+
+**Tidak ditegakkan oleh gate:**
+
+- Arah import lintas-paket secara penuh. Audit dependensi yang memetakan setiap import lintas-paket adalah pekerjaan sekali jalan saat migrasi dan bukan bagian dari repo yang dikirim. Audit itu menemukan satu-satunya dua back-edge nyata saat itu (modul router mengimpor dari loop agent), yang kemudian dibubarkan dengan memindahkan router ke layer bawah — tapi back-edge baru yang diperkenalkan besok akan tertangkap di review, bukan oleh build yang gagal.
+
+Menyatakan celah itu lebih berguna daripada mengklaim seluruh kontraknya dicek mesin. Gate di atas menutup pelanggaran yang benar-benar pernah terjadi; sisanya kontrak saat review dengan sejarah yang terdokumentasi.
 
 ## Konsekuensi
 
-- "Perbaikan ini ditaruh di mana?" punya satu jawaban benar per perubahan.
-- Cycle muncul di langkah audit, bukan sebagai error import saat runtime.
-- Migrasinya sendiri dieksekusi sebagai ±35 commit disiplin (pindah → verifikasi → commit) dengan gate parity registry live sebelum dan sesudah tiap langkah — zero-downtime, sepenuhnya reversible, tiap langkah di-push ke remote backup sebelum produksi disentuh.
+- "Perbaikan ini harus ditaruh di mana?" punya tepat satu jawaban benar per perubahan.
+- Dua kelas kegagalan yang sudah pernah menggigit codebase ini sekarang jadi gate alih-alih kebiasaan.
+- Migrasinya sendiri dieksekusi sebagai ~35 commit berdisiplin (pindah → verifikasi → commit) dengan gate paritas registry hidup sebelum dan sesudah tiap langkah — nol downtime, sepenuhnya bisa dibalik, setiap langkah di-push ke remote backup sebelum menyentuh produksi.
