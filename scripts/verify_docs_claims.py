@@ -250,6 +250,24 @@ else:
           f"expected '{passed} passed'")
 
 print()
+print("=== safety claims must match the code that enforces them ===")
+# These are the claims a reader is most likely to act on, so they are checked
+# against the source that enforces them rather than trusted as prose.
+cfg = (SRC / "engrix" / "config.py").read_text(encoding="utf-8", errors="replace")
+check("config enforces loopback WEB_HOST", 'not in ("127.0.0.1", "localhost", "::1")' in cfg,
+      "loopback guard not found in config.py")
+check("config has an auto-approve switch", "ENGRIX_AUTO_APPROVE" in cfg,
+      "ENGRIX_AUTO_APPROVE not found in config.py")
+auto_default = re.search(r'"ENGRIX_AUTO_APPROVE",\s*"([^"]*)"', cfg)
+check("README states the real auto-approve default",
+      auto_default is not None and (
+          (auto_default.group(1) in ("1", "true", "yes") and "defaults to `1`" in readme)
+          or (auto_default.group(1) not in ("1", "true", "yes") and "defaults to `0`" in readme)
+      ),
+      f"config default={auto_default.group(1) if auto_default else '?'}")
+check("README states the loopback invariant", "`WEB_HOST` must stay loopback" in readme)
+
+print()
 print("=== en/id heading parity ===")
 pairs = [
     ("en/architecture/overview.md", "id/architecture/overview.md"),
